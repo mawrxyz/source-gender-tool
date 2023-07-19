@@ -85,7 +85,38 @@
                     unknownCount++;
                 }
             }
-            tableHTML += `<p>Gender Distribution: Male - ${maleCount}, Female - ${femaleCount}, Unknown - ${unknownCount}</p>`;
+            tableHTML += '</table>';
+
+            const totalCount = maleCount + femaleCount + unknownCount;
+
+            // Calculate the percentages
+            const malePercentage = ((maleCount / totalCount) * 100).toFixed(2);
+            const femalePercentage = ((femaleCount / totalCount) * 100).toFixed(2);
+            const unknownPercentage = ((unknownCount / totalCount) * 100).toFixed(2);
+
+            // Append the gender calculation to the table
+            tableHTML += `<table class="gender-table">
+                    <tr>
+                        <th>Gender</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                    </tr>
+                    <tr>
+                        <td>Male</td>
+                        <td>${maleCount}</td>
+                        <td>${malePercentage}%</td>
+                    </tr>
+                    <tr>
+                        <td>Female</td>
+                        <td>${femaleCount}</td>
+                        <td>${femalePercentage}%</td>
+                    </tr>
+                    <tr>
+                        <td>Unknown</td>
+                        <td>${unknownCount}</td>
+                        <td>${unknownPercentage}%</td>
+                    </tr>
+                </table>`;
 
             // Display the results in a modal
             openModal(tableHTML);
