@@ -8,9 +8,22 @@ body {
 
 h1, form {
   text-align: center;
-  margin-bottom: 20px; 
+  margin-bottom: 30px; 
 }
 
+.hidden {
+  display: none;
+}
+
+label {
+  display: block;
+  font-size: 1.1em;
+  margin-bottom: 20px;
+}
+
+#text_form p {
+  text-align: right;
+}
 
 form input {
   margin-top: 10px;
@@ -21,12 +34,48 @@ form input {
   font-size: 16px;
 }
 
-input[type="text"] {
+input[type="text"], textarea {
   padding: 10px;
   border-radius: 4px;
   border: 1px solid #ccc;
   width: 100%;
   box-sizing: border-box;
+}
+
+#article_text {
+  height: 300px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow: auto;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 600px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.modal-close {
+  margin-top: 10px;
+  text-align: center;
 }
 
 input[type="submit"] {

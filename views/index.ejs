@@ -5,13 +5,108 @@
         <link rel="stylesheet" type="text/css" href="/css/style.css">
     </head>
 <body>
-    <h1>UK-based female source generator</h1>
+    <h1>Gender source detector and fixer</h1>
     <div id="container">
+        <form id="text_form" action="/detect" method="post">
+            <label for="article_text">1. Enter some article text to see which sources are quoted that are not the main newsmakers (max 1000 words):</label>
+            <textarea id="article_text" name="article_text" oninput="countWords(this, document.getElementById('wordCount'))"></textarea>
+            <p>Word count: <span id="wordCount" style="color: black;">0</span>/1000</p>
+            <input type="submit" value="Analyse article">
+        </form>
+        
         <form action="/scrape" method="post">
-            <label for="job_title">Enter a job title to find sources that are <em>probably</em> women based on their pronouns and names:</label>
+            <label for="job_title">2. Enter a job title to find UK-based sources that are <em>probably</em> women:</label>
             <input type="text" id="job_title" name="job_title">
-            <input type="submit" value="Submit">
+            <input type="submit" value="Find sources">
         </form>
     </div>  
+
+        <!-- Modal dialog for displaying results -->
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <h2>Sources quoted</h2>
+                <div id="modal-results"></div>
+                <div class="modal-close">
+                    <button onclick="closeModal()">Close</button>
+                </div>
+            </div>
+        </div>
+
+    <script>
+
+        // Function for word counter
+        function countWords(textarea, display) {
+            let text = textarea.value;
+            let words = text.split(/\s+/).filter(function(word) { return word.length > 0; }); // split by spaces and remove empty words
+            display.textContent = words.length;
+            if (words.length > 1000) {
+                words = words.slice(0, 1000); // limit words array to 1000 elements
+                textarea.value = words.join(' '); // update textarea value with limited words
+                display.textContent = words.length;
+                display.style.color = 'red';
+            } else {
+                display.style.color = 'black';
+            }
+        }
+
+        //Processing article text and returning results on page
+
+        document.getElementById('text_form').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const article_text = document.getElementById('article_text').value;
+        const resultsDiv = document.getElementById('results');
+
+        fetch('/detect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ article_text: article_text })
+        })
+        .then(response => response.json())
+        .then(data => {
+            let tableHTML = '<table><tr><th>Source</th><th>Gender</th><th>Role</th></tr>';
+                let maleCount = 0;
+                let femaleCount = 0;
+                let unknownCount = 0;
+
+            for (let person of data) {
+                tableHTML += `<tr>
+                    <td>${person.name}</td>
+                    <td>${person.gender}</td>
+                    <td>${person.role}</td>
+                </tr>`;
+
+                // Count the gender distribution
+                if (person.gender.toLowerCase() === 'male') {
+                        maleCount++;
+                } else if (person.gender.toLowerCase() === 'female') {
+                    femaleCount++;
+                } else {
+                    unknownCount++;
+                }
+            }
+            tableHTML += `<p>Gender Distribution: Male - ${maleCount}, Female - ${femaleCount}, Unknown - ${unknownCount}</p>`;
+
+            // Display the results in a modal
+            openModal(tableHTML);
+        })
+        .catch(error => console.error('Error:', error));
+        });
+
+        // Function to open the modal and display the results
+        function openModal(content) {
+            const modal = document.getElementById('myModal');
+            const modalContent = document.getElementById('modal-results');
+            modalContent.innerHTML = content;
+            modal.style.display = 'block';
+        }
+
+        // Function to close the modal
+        function closeModal() {
+            const modal = document.getElementById('myModal');
+            modal.style.display = 'none';
+        }
+
+    </script>
 </body>
 </html>
