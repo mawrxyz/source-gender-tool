@@ -49,26 +49,29 @@ app.post('/detect', async (req, res) => {
     let perspectives_data = [];
     try {
         const response = await openai.createChatCompletion({
-            model: "gpt-3.5-turbo",
+            model: "gpt-4",
             messages: [
-                {role: "system", content: `Given the text below, identify the individuals who are directly quoted in the text. IMPORTANT: Do not include the main newsmakers or subjects of the story, only those providing additional opinions. For each individual, provide their name, likely gender, and a description of their role in the story, which could be used to search for a similar individual in a search engine or LinkedIn. Where pronouns or honorifics indicating gender are used, state the gender accordingly (e.g. male, female or non-binary). Otherwise, make a guess based on the name or other contextual clues available. /n/n For the role, focus on aspects of their background or expertise that are relevant to the story. For example, if a person is quoted because they live in an area that is the subject of the story, their profession is not as important as the fact that they are a resident of the area. Avoid mentioning the company the person works at unless it is relevant to the story, as it is more likely that their professional expertise is why they were quoted, and people with similar expertise may not work at the same company. /n/n Return your response as an array of JavaScript object, with each object representing an individual. For example, if the three people contributing opinions to the article are "Tom Holland, senior political analyst at think tank XYZ", "Angeline Baker, marketing manager and resident of Cardiff city" and "Richard Tate, owner of local business The Beaver's Den", the response could be something like this:
+                {role: "system", content: `You will be provided with a block of text, and your task will be to extract the names of individuals who are directly quoted in the text, their gender, and their connection to the subject of the story or the reason for their inclusion in the story. Only include individuals who are providing supplementary comments or perspectives who could be replaced by others of similar background, experiences or expertise. 
+                
+                **Exclude individuals who are the main newsmaker(s) or subject(s) of the news article. Also, exclude individuals who are only mentioned in the text but do not provide direct quotes.**
+
+                Describe their connection (or "role") in broad terms that explain why their perspectives are valuable to the story. This could be due to professional expertise, personal experiences, a shared background with the subject of the story, or any other aspect that makes their perspectives unique and irreplaceable. Unless it is crucial to their perspectives, do not mention specific company names or overly detailed job titles. 
+                
+                State the individual's gender based on pronouns or honorifics used in the text. If no clear indication is given, make an educated guess based on the name or other contextual clues.
+                
+                Please return your response as an array of JavaScript objects, with each object representing an individual. For example:
                 [
-                    {
-                        "name": "Tom Holland",
-                        "gender": "male",
-                        "role": "political analyst at a think tank"
-                    },
-                    {
-                        "name": "Angeline Baker",
-                        "gender": "female",
-                        "profession": "resident of Cardiff city"
-                    },
-                    {
-                        "name": "Richard Tate",
-                        "gender": "male",
-                        "profession": "local business owner"
-                    }
-                  ]`},
+                {
+                "name": "Jane Doe",
+                "gender": "female",
+                "role": "senior political analyst at a think tank"
+                },
+                {
+                "name": "John Doe",
+                "gender": "male",
+                "role": "resident of Cardiff city"
+                }
+                ]`},
                 {role: "user", content: article_text}
             ],
             temperature: 0,

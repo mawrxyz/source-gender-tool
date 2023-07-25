@@ -8,10 +8,13 @@
     <h1>Gender source detector and fixer</h1>
     <div id="container">
         <form id="text_form" action="/detect" method="post">
-            <label for="article_text">1. Enter some article text to see which sources are quoted that are not the main newsmakers (max 1000 words):</label>
+            <label for="article_text">1. Enter some article text to see which sources are quoted (max 1000 words):</label>
             <textarea id="article_text" name="article_text" oninput="countWords(this, document.getElementById('wordCount'))"></textarea>
             <p>Word count: <span id="wordCount" style="color: black;">0</span>/1000</p>
-            <input type="submit" value="Analyse article">
+            <div id="loading-spinner" style="display: none;">
+                <img src="/images/loading.gif" alt="Loading...">
+            </div>
+            <input id="analyse-button" type="submit" value="Analyse article">
         </form>
         
         <form action="/scrape" method="post">
@@ -33,7 +36,7 @@
         </div>
 
     <script>
-
+    
         // Function for word counter
         function countWords(textarea, display) {
             let text = textarea.value;
@@ -54,20 +57,34 @@
         document.getElementById('text_form').addEventListener('submit', function(event) {
         event.preventDefault();
 
+        // Get the loading spinner
+        const loadingSpinner = document.getElementById('loading-spinner');
+
+        // Get the button
+        const analyseButton = document.getElementById('analyse-button');
+
+        // Hide the button and display the loading spinner
+        analyseButton.style.display = 'none';
+        loadingSpinner.style.display = 'block';
+
         const article_text = document.getElementById('article_text').value;
-        const resultsDiv = document.getElementById('results');
 
         fetch('/detect', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ article_text: article_text })
         })
-        .then(response => response.json())
+        .then(response => {
+                if (!response.ok) { throw response }
+                return response.json()  //we only get here if there is no error
+            })
         .then(data => {
             let tableHTML = '<table><tr><th>Source</th><th>Gender</th><th>Role</th></tr>';
                 let maleCount = 0;
                 let femaleCount = 0;
                 let unknownCount = 0;
+
+            // Presentation of results for sources
 
             for (let person of data) {
                 tableHTML += `<tr>
@@ -95,6 +112,7 @@
             const unknownPercentage = ((unknownCount / totalCount) * 100).toFixed(2);
 
             // Append the gender calculation to the table
+            tableHTML += '<h3>Breakdown of gender</h3>'
             tableHTML += `<table class="gender-table">
                     <tr>
                         <th>Gender</th>
@@ -117,11 +135,21 @@
                         <td>${unknownPercentage}%</td>
                     </tr>
                 </table>`;
+            
+            // Hide the loading spinner and show the analyse button again
+            analyseButton.style.display = 'block';
+            loadingSpinner.style.display = 'none';
 
             // Display the results in a modal
             openModal(tableHTML);
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+                console.error('Error:', error);
+                
+                // Hide the loading spinner and show the analyse button in case of an error
+                loadingSpinner.style.display = 'none';
+                analyseButton.style.display = 'block';
+            });
         });
 
         // Function to open the modal and display the results
