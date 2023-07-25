@@ -17,7 +17,7 @@
             <input id="analyse-button" type="submit" value="Analyse article">
         </form>
         
-        <form action="/scrape" method="post">
+        <form id="scrape_form" action="/scrape" method="post">
             <label for="job_title">2. Enter a job title to find UK-based sources that are <em>probably</em> women:</label>
             <input type="text" id="job_title" name="job_title">
             <input type="submit" value="Find sources">
@@ -140,8 +140,12 @@
             analyseButton.style.display = 'block';
             loadingSpinner.style.display = 'none';
 
+            const majorityGender = (malePercentage > femalePercentage) ? 'male' : 'female'; // Find the majority gender based on percentages
+            tableHTML += `<p>The majority gender is <b>${majorityGender}</b>.</p>`
+
             // Display the results in a modal
             openModal(tableHTML);
+
         })
         .catch(error => {
                 console.error('Error:', error);
