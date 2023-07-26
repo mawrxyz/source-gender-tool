@@ -108,11 +108,21 @@ app.post('/detect', async (req, res) => {
 app.post('/scrape', async (req, res) => {
 
     let job_title = req.body.job_title;
+    let minority_gender = req.body.minority_gender;
+
+    let url;
+
+    if (minority_gender === 'female') {
+        url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=site:uk.linkedin.com/in%20${job_title}%20(she%20OR%20her)&num=10`;
+    } else if (minority_gender === 'male') {
+        url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=site:uk.linkedin.com/in%20${job_title}%20(he%20OR%20him)&num=10`;
+    } else {
+        url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=site:uk.linkedin.com/in%20${job_title}&num=10`;
+    }
 
     const getData = async () => {
         let employees_data = [];
         try {
-            const url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=site:uk.linkedin.com/in%20${job_title}%20(her%20OR%20she)&num=10`;
 
             const response = await unirest.get(url);
             console.log("Profile response: ", response)
@@ -181,8 +191,8 @@ app.post('/scrape', async (req, res) => {
                 console.log('Gender: ', gender);
                 console.log('Genderize probability: ', probability);
 
-                if (gender === 'male') {
-                    continue; // Skip men identified at this point
+                if (gender !== minority_gender) {
+                    continue; // Skip those that are not in the minority gender
                 }
 
                 let sheRegex = /\bshe\b[\p{P}\s]?/giu;

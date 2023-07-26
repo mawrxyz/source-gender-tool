@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>UK-based female source generator</title>
+        <title>Gender source detector and fixer</title>
         <link rel="stylesheet" type="text/css" href="/css/style.css">
     </head>
 <body>
     <h1>Gender source detector and fixer</h1>
     <div id="container">
         <form id="text_form" action="/detect" method="post">
-            <label for="article_text">1. Enter some article text to see which sources are quoted (max 1000 words):</label>
+            <label for="article_text">Enter some article text to see which additional sources are quoted. These do not include the main newsmakers or subjects of the story. Please keep your input to a maximum of 1000 words:</label>
             <textarea id="article_text" name="article_text" oninput="countWords(this, document.getElementById('wordCount'))"></textarea>
             <p>Word count: <span id="wordCount" style="color: black;">0</span>/1000</p>
             <div id="loading-spinner" style="display: none;">
@@ -16,12 +16,8 @@
             </div>
             <input id="analyse-button" type="submit" value="Analyse article">
         </form>
-        
-        <form id="scrape_form" action="/scrape" method="post">
-            <label for="job_title">2. Enter a job title to find UK-based sources that are <em>probably</em> women:</label>
-            <input type="text" id="job_title" name="job_title">
-            <input type="submit" value="Find sources">
-        </form>
+
+
     </div>  
 
         <!-- Modal dialog for displaying results -->
@@ -29,6 +25,7 @@
             <div class="modal-content">
                 <h2>Sources quoted</h2>
                 <div id="modal-results"></div>
+                <div id="job_links"></div>
                 <div class="modal-close">
                     <button onclick="closeModal()">Close</button>
                 </div>
@@ -79,7 +76,7 @@
                 return response.json()  //we only get here if there is no error
             })
         .then(data => {
-            let tableHTML = '<table><tr><th>Source</th><th>Gender</th><th>Role</th></tr>';
+            let tableHTML = '<table class = "source-table"><tr><th>Source</th><th>Gender</th><th>Role</th></tr>';
                 let maleCount = 0;
                 let femaleCount = 0;
                 let unknownCount = 0;
@@ -112,7 +109,7 @@
             const unknownPercentage = ((unknownCount / totalCount) * 100).toFixed(2);
 
             // Append the gender calculation to the table
-            tableHTML += '<h3>Breakdown of gender</h3>'
+            tableHTML += '<h2>Breakdown of gender</h2>'
             tableHTML += `<table class="gender-table">
                     <tr>
                         <th>Gender</th>
@@ -139,13 +136,64 @@
             // Hide the loading spinner and show the analyse button again
             analyseButton.style.display = 'block';
             loadingSpinner.style.display = 'none';
+            
+            let minorityGender, majorityGender;
 
-            const majorityGender = (malePercentage > femalePercentage) ? 'male' : 'female'; // Find the majority gender based on percentages
-            tableHTML += `<p>The majority gender is <b>${majorityGender}</b>.</p>`
+            if (malePercentage > femalePercentage) {
+                minorityGender = 'female';
+                majorityGender = 'male';
+                tableHTML += `<div id="gender_balance">There are <b>more men than women</b> quoted as additional sources in your story. You might want to consider looking for alternative sources for some of the following roles:</div>`
+            } else if (malePercentage === femalePercentage) {
+                tableHTML += `<div id="gender_balance" style="background-color: #A4D1A2">There is a perfect balance of men and women quoted as additional sources in your story. Good job!</div>`
+            } else {
+                minorityGender = 'male';
+                majorityGender = 'female';
+                tableHTML += `<div id="gender_balance">There are <b>more women than men</b> quoted as additional sources in your story. You might want to consider looking for alternative sources for some of the following roles:</div>`
+            }
+
+            const jobLinksDiv = document.getElementById('job_links');
+            jobLinksDiv.innerHTML = '';
+
+            const majorityJobs = [];
+
+            for (let person of data) {
+                if (person.gender.toLowerCase() === majorityGender) {
+                    majorityJobs.push(person.role);
+                }
+            }
+
+            const ul = document.createElement('ul');
+
+            for (let job of majorityJobs) {
+            const jobLink = document.createElement('a');
+            jobLink.href = '#';
+            jobLink.textContent = job;
+            jobLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                fetch('/scrape', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ job_title: encodeURIComponent(job), minority_gender: minorityGender })
+                }).then((response) => {
+                    if (response.ok) {
+                        return response.text();
+                    }
+                }).then((html) => {
+                    document.open();
+                    document.write(html);
+                    document.close();
+                });
+            });
+
+            const li = document.createElement('li');
+            li.appendChild(jobLink);
+            ul.appendChild(li);
+            }
+
+            jobLinksDiv.appendChild(ul);
 
             // Display the results in a modal
             openModal(tableHTML);
-
         })
         .catch(error => {
                 console.error('Error:', error);
