@@ -51,25 +51,33 @@ app.post('/detect', async (req, res) => {
         const response = await openai.createChatCompletion({
             model: "gpt-4",
             messages: [
-                {role: "system", content: `You will be provided with a block of text, and your task will be to extract the names of individuals who are directly quoted in the text, their gender, and their connection to the subject of the story or the reason for their inclusion in the story. Only include individuals who are providing supplementary comments or perspectives who could be replaced by others of similar background, experiences or expertise. 
+                {role: "system", content: `You will be provided with a block of text, and your task will be to extract the names of individuals who are directly quoted as saying something in the text, their gender, and their connection to the subject of the story or the reason for their inclusion in the story. 
                 
-                **Exclude individuals who are the main newsmaker(s) or subject(s) of the news article. Also, exclude individuals who are only mentioned in the text but do not provide direct quotes.**
+                **IMPORTANT: Only include individuals who are providing supplementary comments or perspectives who could be replaced by others of similar background, experiences or expertise. Exclude individuals who are the main subject(s) of the news article. Also, exclude individuals who are only mentioned but do not provide direct quotes.**
 
-                Describe their connection (or "role") in broad terms that explain why their perspectives are valuable to the story. This could be due to professional expertise, personal experiences, a shared background with the subject of the story, or any other aspect that makes their perspectives unique and irreplaceable. Unless it is crucial to their perspectives, do not mention specific company names or overly detailed job titles. 
+                Describe each individual's connection (or "role") in broad terms that explain why their perspectives are valuable to the story. This could be due to professional expertise, personal experiences, a shared background with the subject of the story, or any other aspect that makes their perspectives unique and irreplaceable. Do not mention specific company names or overly detailed job titles, unless these details are key to the person's role in the story. 
+                
+                If the role is a professional one (i.e. someone with the same role could be found by searching for for the role on a job site like LinkedIn) put "yes" as the value for the key "linkedin". Otherwise, if the role is highly personal such as the relative of the main subject or a resident of a city, put "no". 
                 
                 State the individual's gender based on pronouns or honorifics used in the text. If no clear indication is given, make an educated guess based on the name or other contextual clues.
+
+                Extract the quotes that are used, with each quote presented as a list item. There must be at least one quote for each individual included.
                 
                 Please return your response as an array of JavaScript objects, with each object representing an individual. For example:
                 [
                 {
                 "name": "Jane Doe",
                 "gender": "female",
-                "role": "senior political analyst at a think tank"
+                "role": "senior political analyst at a think tank",
+                "linkedin": "yes",
+                "quotes": "<ul><li>'This is a highly concerning situation'</li><li>'We shall wait and see'</li></ul>"
                 },
                 {
                 "name": "John Doe",
                 "gender": "male",
-                "role": "resident of Cardiff city"
+                "role": "resident of Cardiff city",
+                "linkedin": "no",
+                "quotes": "<ul><li>'In general, I support the government's policies'</li></ul>"
                 }
                 ]`},
                 {role: "user", content: article_text}
@@ -89,11 +97,15 @@ app.post('/detect', async (req, res) => {
             let name = individual.name;
             let gender = individual.gender;
             let role = individual.role;
+            let linkedin = individual.linkedin;
+            let quotes = individual.quotes;
 
             perspectives_data.push({
                 name: name,
                 gender: gender,
-                role: role
+                role: role,
+                linkedin: linkedin,
+                quotes: quotes
             });
         }
 

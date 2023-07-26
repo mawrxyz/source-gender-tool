@@ -98,9 +98,9 @@
             let resultsHTML;
 
             if (data.length === 0) {
-                resultsHTML = `<div id="results_statement" style="background-color: #F4D4D5">There were no sources detected in the text. If you think this is wrong, please close this box and try again.</div>`
+                resultsHTML = `<div id="results_statement" style="background-color: #F4D4D5">There were no sources detected in the text, or the only sources quoted are the main newsmaker(s) or subject(s) of the story. If you think this is wrong, please close this dialogue box and try again.</div>`
             } else {
-                resultsHTML = '<table class = "source-table"><tr><th>Source</th><th>Gender</th><th>Role</th></tr>';
+                resultsHTML = '<table class = "source-table"><tr><th>Source</th><th>Gender</th><th>Role</th><th>Quotes</th></tr>';
                     let maleCount = 0;
                     let femaleCount = 0;
                     let unknownCount = 0;
@@ -112,6 +112,7 @@
                         <td>${person.name}</td>
                         <td>${person.gender}</td>
                         <td>${person.role}</td>
+                        <td>${person.quotes}</td>
                     </tr>`;
 
                     // Count the gender distribution
@@ -163,57 +164,65 @@
                 if (malePercentage > femalePercentage) {
                     minorityGender = 'female';
                     majorityGender = 'male';
-                    resultsHTML += `<div id="results_statement">There are <b>more men than women</b> quoted as additional sources in your story. You might want to consider looking for alternative sources for some of the following roles:</div>`
+                    resultsHTML += `<div id="results_statement">There are <b>more men than women</b> quoted in your story.</div>`
                 } else if (malePercentage === femalePercentage) {
-                    resultsHTML += `<div id="results_statement" style="background-color: #A4D1A2">There is a perfect balance of men and women quoted as additional sources in your story. Good job!</div>`
+                    resultsHTML += `<div id="results_statement" style="background-color: #A4D1A2">There is a perfect balance of men and women quoted in your story. Great job!</div>`
                 } else {
                     minorityGender = 'male';
                     majorityGender = 'female';
-                    resultsHTML += `<div id="results_statement">There are <b>more women than men</b> quoted as additional sources in your story. You might want to consider looking for alternative sources for some of the following roles:</div>`
+                    resultsHTML += `<div id="results_statement">There are <b>more women than men</b> quoted in your story.</div>`
                 }
 
-                const jobLinksDiv = document.getElementById('job_links');
-                jobLinksDiv.innerHTML = '';
+                if (majorityGender != null) {
+                    const jobLinksDiv = document.getElementById('job_links');
+                    
+                    const majorityJobs = [];
 
-                const majorityJobs = [];
+                    for (let person of data) {
+                        if (person.gender.toLowerCase() === majorityGender && person.linkedin === 'yes') {
+                            majorityJobs.push(person.role);
+                        }
+                    }
 
-                for (let person of data) {
-                    if (person.gender.toLowerCase() === majorityGender) {
-                        majorityJobs.push(person.role);
+                    jobLinksDiv.style.display = 'block';
+
+                    if (majorityJobs.length != 0) {
+                        jobLinksDiv.innerHTML = `<p>You might want to consider including more ${minorityGender} voices, or looking for alternative ${minorityGender} sources for some of the following roles (click on each role to see suggested leads):</p>`;
+
+                        const ul = document.createElement('ul');
+
+                        for (let job of majorityJobs) {
+                        const jobLink = document.createElement('a');
+                        jobLink.href = '#';
+                        jobLink.textContent = job;
+                        jobLink.addEventListener('click', (event) => {
+                            event.preventDefault();
+                            fetch('/scrape', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ job_title: encodeURIComponent(job), minority_gender: minorityGender })
+                            }).then((response) => {
+                                if (response.ok) {
+                                    return response.text();
+                                }
+                            }).then((html) => {
+                                document.open();
+                                document.write(html);
+                                document.close();
+                            });
+                        });
+
+                        const li = document.createElement('li');
+                        li.appendChild(jobLink);
+                        ul.appendChild(li);
+                        }
+
+                        jobLinksDiv.appendChild(ul);
+                        } else {
+                            jobLinksDiv.innerHTML = `<p>You might want to consider including more ${minorityGender} voices.</p>`
+                        }
                     }
                 }
-
-                const ul = document.createElement('ul');
-
-                for (let job of majorityJobs) {
-                const jobLink = document.createElement('a');
-                jobLink.href = '#';
-                jobLink.textContent = job;
-                jobLink.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    fetch('/scrape', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ job_title: encodeURIComponent(job), minority_gender: minorityGender })
-                    }).then((response) => {
-                        if (response.ok) {
-                            return response.text();
-                        }
-                    }).then((html) => {
-                        document.open();
-                        document.write(html);
-                        document.close();
-                    });
-                });
-
-                const li = document.createElement('li');
-                li.appendChild(jobLink);
-                ul.appendChild(li);
-                }
-
-                jobLinksDiv.appendChild(ul);
-                jobLinksDiv.style.display = 'block';
-            }
 
             // Hide the loading spinner and show the analyse button again
             analyseButton.style.display = 'block';
