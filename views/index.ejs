@@ -25,7 +25,7 @@
             <div class="modal-content">
                 <h2>Sources quoted</h2>
                 <div id="modal-results"></div>
-                <div id="job_links"></div>
+                <div id="job_links" style="display: none;"></div>
                 <div class="modal-close">
                     <button onclick="closeModal()">Close</button>
                 </div>
@@ -47,6 +47,25 @@
             } else {
                 display.style.color = 'black';
             }
+        }
+
+        // Function to make sure percentages don't have trailing decimals
+        function formatPercentage(num) {
+            return num % 1 === 0 ? Math.floor(num) : num.toFixed(2);
+        }
+
+        // Function to open the modal and display the results
+        function openModal(content) {
+            const modal = document.getElementById('myModal');
+            const modalContent = document.getElementById('modal-results');
+            modalContent.innerHTML = content;
+            modal.style.display = 'block';
+        }
+
+        // Function to close the modal
+        function closeModal() {
+            const modal = document.getElementById('myModal');
+            modal.style.display = 'none';
         }
 
         //Processing article text and returning results on page
@@ -76,124 +95,132 @@
                 return response.json()  //we only get here if there is no error
             })
         .then(data => {
-            let tableHTML = '<table class = "source-table"><tr><th>Source</th><th>Gender</th><th>Role</th></tr>';
-                let maleCount = 0;
-                let femaleCount = 0;
-                let unknownCount = 0;
+            let resultsHTML;
 
-            // Presentation of results for sources
+            if (data.length === 0) {
+                resultsHTML = `<div id="results_statement" style="background-color: #F4D4D5">There were no sources detected in the text. If you think this is wrong, please close this box and try again.</div>`
+            } else {
+                resultsHTML = '<table class = "source-table"><tr><th>Source</th><th>Gender</th><th>Role</th></tr>';
+                    let maleCount = 0;
+                    let femaleCount = 0;
+                    let unknownCount = 0;
 
-            for (let person of data) {
-                tableHTML += `<tr>
-                    <td>${person.name}</td>
-                    <td>${person.gender}</td>
-                    <td>${person.role}</td>
-                </tr>`;
+                // Presentation of results for sources
 
-                // Count the gender distribution
-                if (person.gender.toLowerCase() === 'male') {
-                        maleCount++;
-                } else if (person.gender.toLowerCase() === 'female') {
-                    femaleCount++;
-                } else {
-                    unknownCount++;
+                for (let person of data) {
+                    resultsHTML += `<tr>
+                        <td>${person.name}</td>
+                        <td>${person.gender}</td>
+                        <td>${person.role}</td>
+                    </tr>`;
+
+                    // Count the gender distribution
+                    if (person.gender.toLowerCase() === 'male') {
+                            maleCount++;
+                    } else if (person.gender.toLowerCase() === 'female') {
+                        femaleCount++;
+                    } else {
+                        unknownCount++;
+                    }
                 }
+                resultsHTML += '</table>';
+
+                const totalCount = maleCount + femaleCount + unknownCount;
+
+                // Calculate the percentages
+                const malePercentage = formatPercentage((maleCount / totalCount) * 100);
+                const femalePercentage = formatPercentage((femaleCount / totalCount) * 100);
+                const unknownPercentage = formatPercentage((unknownCount / totalCount) * 100);
+
+                // Append the gender calculation to the table
+                resultsHTML += '<h2>Breakdown of gender</h2>'
+                resultsHTML += `<table class="gender-table">
+                        <tr>
+                            <th>Gender</th>
+                            <th>Count</th>
+                            <th>Percentage</th>
+                        </tr>
+                        <tr>
+                            <td>Male</td>
+                            <td>${maleCount}</td>
+                            <td>${malePercentage}%</td>
+                        </tr>
+                        <tr>
+                            <td>Female</td>
+                            <td>${femaleCount}</td>
+                            <td>${femalePercentage}%</td>
+                        </tr>
+                        <tr>
+                            <td>Unknown</td>
+                            <td>${unknownCount}</td>
+                            <td>${unknownPercentage}%</td>
+                        </tr>
+                    </table>`;
+                
+                
+                let minorityGender, majorityGender;
+
+                if (malePercentage > femalePercentage) {
+                    minorityGender = 'female';
+                    majorityGender = 'male';
+                    resultsHTML += `<div id="results_statement">There are <b>more men than women</b> quoted as additional sources in your story. You might want to consider looking for alternative sources for some of the following roles:</div>`
+                } else if (malePercentage === femalePercentage) {
+                    resultsHTML += `<div id="results_statement" style="background-color: #A4D1A2">There is a perfect balance of men and women quoted as additional sources in your story. Good job!</div>`
+                } else {
+                    minorityGender = 'male';
+                    majorityGender = 'female';
+                    resultsHTML += `<div id="results_statement">There are <b>more women than men</b> quoted as additional sources in your story. You might want to consider looking for alternative sources for some of the following roles:</div>`
+                }
+
+                const jobLinksDiv = document.getElementById('job_links');
+                jobLinksDiv.innerHTML = '';
+
+                const majorityJobs = [];
+
+                for (let person of data) {
+                    if (person.gender.toLowerCase() === majorityGender) {
+                        majorityJobs.push(person.role);
+                    }
+                }
+
+                const ul = document.createElement('ul');
+
+                for (let job of majorityJobs) {
+                const jobLink = document.createElement('a');
+                jobLink.href = '#';
+                jobLink.textContent = job;
+                jobLink.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    fetch('/scrape', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ job_title: encodeURIComponent(job), minority_gender: minorityGender })
+                    }).then((response) => {
+                        if (response.ok) {
+                            return response.text();
+                        }
+                    }).then((html) => {
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    });
+                });
+
+                const li = document.createElement('li');
+                li.appendChild(jobLink);
+                ul.appendChild(li);
+                }
+
+                jobLinksDiv.appendChild(ul);
+                jobLinksDiv.style.display = 'block';
             }
-            tableHTML += '</table>';
 
-            const totalCount = maleCount + femaleCount + unknownCount;
-
-            // Calculate the percentages
-            const malePercentage = ((maleCount / totalCount) * 100).toFixed(2);
-            const femalePercentage = ((femaleCount / totalCount) * 100).toFixed(2);
-            const unknownPercentage = ((unknownCount / totalCount) * 100).toFixed(2);
-
-            // Append the gender calculation to the table
-            tableHTML += '<h2>Breakdown of gender</h2>'
-            tableHTML += `<table class="gender-table">
-                    <tr>
-                        <th>Gender</th>
-                        <th>Count</th>
-                        <th>Percentage</th>
-                    </tr>
-                    <tr>
-                        <td>Male</td>
-                        <td>${maleCount}</td>
-                        <td>${malePercentage}%</td>
-                    </tr>
-                    <tr>
-                        <td>Female</td>
-                        <td>${femaleCount}</td>
-                        <td>${femalePercentage}%</td>
-                    </tr>
-                    <tr>
-                        <td>Unknown</td>
-                        <td>${unknownCount}</td>
-                        <td>${unknownPercentage}%</td>
-                    </tr>
-                </table>`;
-            
             // Hide the loading spinner and show the analyse button again
             analyseButton.style.display = 'block';
             loadingSpinner.style.display = 'none';
             
-            let minorityGender, majorityGender;
-
-            if (malePercentage > femalePercentage) {
-                minorityGender = 'female';
-                majorityGender = 'male';
-                tableHTML += `<div id="gender_balance">There are <b>more men than women</b> quoted as additional sources in your story. You might want to consider looking for alternative sources for some of the following roles:</div>`
-            } else if (malePercentage === femalePercentage) {
-                tableHTML += `<div id="gender_balance" style="background-color: #A4D1A2">There is a perfect balance of men and women quoted as additional sources in your story. Good job!</div>`
-            } else {
-                minorityGender = 'male';
-                majorityGender = 'female';
-                tableHTML += `<div id="gender_balance">There are <b>more women than men</b> quoted as additional sources in your story. You might want to consider looking for alternative sources for some of the following roles:</div>`
-            }
-
-            const jobLinksDiv = document.getElementById('job_links');
-            jobLinksDiv.innerHTML = '';
-
-            const majorityJobs = [];
-
-            for (let person of data) {
-                if (person.gender.toLowerCase() === majorityGender) {
-                    majorityJobs.push(person.role);
-                }
-            }
-
-            const ul = document.createElement('ul');
-
-            for (let job of majorityJobs) {
-            const jobLink = document.createElement('a');
-            jobLink.href = '#';
-            jobLink.textContent = job;
-            jobLink.addEventListener('click', (event) => {
-                event.preventDefault();
-                fetch('/scrape', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ job_title: encodeURIComponent(job), minority_gender: minorityGender })
-                }).then((response) => {
-                    if (response.ok) {
-                        return response.text();
-                    }
-                }).then((html) => {
-                    document.open();
-                    document.write(html);
-                    document.close();
-                });
-            });
-
-            const li = document.createElement('li');
-            li.appendChild(jobLink);
-            ul.appendChild(li);
-            }
-
-            jobLinksDiv.appendChild(ul);
-
             // Display the results in a modal
-            openModal(tableHTML);
+            openModal(resultsHTML);
         })
         .catch(error => {
                 console.error('Error:', error);
@@ -203,20 +230,6 @@
                 analyseButton.style.display = 'block';
             });
         });
-
-        // Function to open the modal and display the results
-        function openModal(content) {
-            const modal = document.getElementById('myModal');
-            const modalContent = document.getElementById('modal-results');
-            modalContent.innerHTML = content;
-            modal.style.display = 'block';
-        }
-
-        // Function to close the modal
-        function closeModal() {
-            const modal = document.getElementById('myModal');
-            modal.style.display = 'none';
-        }
 
     </script>
 </body>
