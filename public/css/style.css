@@ -40,7 +40,7 @@ h1, h2, form {
   text-align: center;
 }
 
-#results h2 {
+h2 {
   color: #f44336;
 }
 
@@ -140,7 +140,7 @@ input[type="text"], textarea {
   padding: 20px;
 }
 #loading-spinner img {
-  width: 60px;
+  width: 100px;
 }
 
 #results_data {

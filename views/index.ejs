@@ -9,16 +9,13 @@
     <div id="container">
         <div id="content">
             <form id="text_form">
+                <h2>Text input</h2>
                 <div class="form-field">
                     <label for="article_text">Enter some article text to see which additional sources are quoted. These do not include the main newsmakers or subjects of the story. Please keep your input to a maximum of 1000 words:</label>
 
                     <textarea id="article_text" name="article_text" oninput="countWords(this, document.getElementById('wordCount'))"></textarea>
                 </div>
                 <p>Word count: <span id="wordCount" style="color: black;">0</span>/1000</p>
-                
-                <div class="form-field" id="loading-spinner" style="display: none;">
-                    <img src="/images/loading.gif" alt="Loading...">
-                </div>
 
                 <div class="form-field" id ="form-buttons">
                     <button id="analyse-button" type="button" onclick="analyseArticle()">Analyse</button>
@@ -28,6 +25,9 @@
             </form>
             <div id="results">
                 <h2>Results</h2>
+                <div id="loading-spinner" style="display: none;">
+                    <img src="/images/loading.gif" alt="Loading...">
+                </div>
                 <div id="recommendations">
                     <div id="results_statement" style="display: none;"></div>
                     <div id="job_links" style="display: none;"></div>
@@ -109,17 +109,23 @@
 
         // Function to analyse the article
         function analyseArticle() {
+            const resultsDiv = document.getElementById('results_data');
+            resultsDiv.innerHTML = ''; // Clear the previous results, if any
 
-            // Get elements that you need to toggle display properties of
+            // Get elements that we need to toggle display properties of
             const loadingSpinner = document.getElementById('loading-spinner');
             const analyseButton = document.getElementById('analyse-button');
             const resultsStatementDiv = document.getElementById('results_statement');
+            const jobLinksDiv = document.getElementById('job_links');
+
+            resultsStatementDiv.style.display = 'none'; // Hide the previous results statement, if any
+            jobLinksDiv.style.display = 'none'; // Hide the job links, if any
+            resultsStatementDiv.style.backgroundColor = '#FFCD91'; // Reset background colour to orange
 
             // Set the initial state of the button
             analyseButton.disabled = true;
 
-            // Hide the button and display the loading spinner
-            analyseButton.style.display = 'none';
+            // Display the loading spinner
             loadingSpinner.style.display = 'block';
 
             const article_text = document.getElementById('article_text').value;
@@ -186,7 +192,6 @@
                     }
 
                     if (majorityGender != null) {
-                        const jobLinksDiv = document.getElementById('job_links');
                         
                         const majorityJobs = [];
 
@@ -218,9 +223,10 @@
                                         return response.text();
                                     }
                                 }).then((html) => {
-                                    document.open();
-                                    document.write(html);
-                                    document.close();
+                                    let newWindow = window.open("", "_blank");
+                                    newWindow.document.open();
+                                    newWindow.document.write(html);
+                                    newWindow.document.close();
                                 });
                             });
 
@@ -276,21 +282,20 @@
                         </table>`;
                     
                         // Insert the HTML into the results div
-                        const resultsDiv = document.getElementById('results_data');
                         resultsDiv.innerHTML = resultsHTML;
                     }
 
-            // Hide the loading spinner and show the analyse button again
-            analyseButton.style.display = 'block';
+            // Hide the loading spinner and enable the analyse button again
+            analyseButton.disabled = true;
             loadingSpinner.style.display = 'none';
         
         })
         .catch(error => {
                 console.error('Error:', error);
                 
-                // Hide the loading spinner and show the analyse button in case of an error
+                // Hide the loading spinner and enable the analyse button in case of an error
                 loadingSpinner.style.display = 'none';
-                analyseButton.style.display = 'block';
+                analyseButton.disabled = true;;
             });
         };
 
