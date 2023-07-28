@@ -25,12 +25,12 @@
             </form>
             <div id="results">
                 <h2>Results</h2>
-                <div id="loading-spinner" style="display: none;">
-                    <img src="/images/loading.gif" alt="Loading...">
-                </div>
                 <div id="recommendations">
                     <div id="results_statement" style="display: none;"></div>
                     <div id="job_links" style="display: none;"></div>
+                </div>
+                <div id="loading-spinner" style="display: none;">
+                    <img src="/images/loading.gif" alt="Loading...">
                 </div>
                 <div id="results_data">
 
@@ -180,7 +180,7 @@
                 resultsStatementDiv.style.display = 'block';
 
                 if (data.length === 0) {
-                        resultsStatementDiv.innerHTML = "There were no sources detected in the text, or the only sources quoted are the main newsmaker(s) or subject(s) of the story. If you think this is wrong, please close this dialogue box and try again.";
+                        resultsStatementDiv.innerHTML = "There were no sources detected in the text, or the only sources quoted are the main newsmaker(s) or subject(s) of the story. If you think this is wrong, please click on the 'Reset' button and try again.";
                         resultsStatementDiv.style.backgroundColor = "#F4D4D5";
                 } else {
 
@@ -233,38 +233,39 @@
                             const ul = document.createElement('ul');
 
                             for (let job of majorityJobs) {
-                            const jobLink = document.createElement('a');
-                            jobLink.href = '#';
-                            jobLink.textContent = job;
-                            jobLink.style.textDecoration = "none";
-                            jobLink.style.color = "#f44336";
-                            jobLink.style.cursor = "pointer";
-                            jobLink.addEventListener('click', (event) => {
-                                event.preventDefault();
-                                fetch('/scrape', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ job_title: encodeURIComponent(job), minority_gender: minorityGender })
-                                }).then((response) => {
-                                    if (response.ok) {
-                                        return response.text();
-                                    }
-                                }).then((html) => {
-                                    modalBody.innerHTML = html;  // Populate modal with the HTML
-                                    modal.style.display = 'block';  // Show the modal
-                                });
+                                const li = document.createElement('li');
+                                const jobLink = document.createElement('a');
+                                jobLink.href = '#';
+                                jobLink.textContent = job;
+                                jobLink.style.textDecoration = "none";
+                                jobLink.style.color = "#f44336";
+                                jobLink.style.cursor = "pointer";
+                                jobLink.addEventListener('click', (event) => {
+                                    loadingSpinner.style.display = 'block'; // Show loading gif
+                                    event.preventDefault();
+                                    fetch('/scrape', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ job_title: encodeURIComponent(job), minority_gender: minorityGender })
+                                    }).then((response) => {
+                                        if (response.ok) {
+                                            return response.text();
+                                        }
+                                    }).then((html) => {
+                                        modalBody.innerHTML = html;  // Populate modal with the HTML
+                                        loadingSpinner.style.display = 'none'; // Hide loading gif
+                                        modal.style.display = 'block';  // Show the modal
+                                    });
                             });
-
-                            const li = document.createElement('li');
                             li.appendChild(jobLink);
                             ul.appendChild(li);
                             }
-
                             jobLinksDiv.appendChild(ul);
-                            } else {
-                                jobLinksDiv.innerHTML = `<p>You might want to consider including more ${minorityGender} voices.</p>`
-                            }
+                        } else {
+                            jobLinksDiv.innerHTML = `<p>You might want to consider including more ${minorityGender} voices.</p>`
                         }
+                    
+                    }
 
                     // Presentation of results for sources
 

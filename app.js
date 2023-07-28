@@ -36,8 +36,6 @@ const genderProb = async (name) => {
     return response.data.probability;
 }
 
-// Scraping Google for LinkedIn results for job title
-
 app.get("/", (req, res) => {
     res.render("index");
 });
@@ -63,7 +61,7 @@ app.post('/detect', async (req, res) => {
 
                 Extract the quotes that are used, with each quote presented as a list item. There must be at least one quote for each individual included.
                 
-                Please return your response as an array of JavaScript objects, with each object representing an individual. For example:
+                Please return your response as an array of JavaScript objects in British English, with each object representing an individual. For example:
                 [
                 {
                 "name": "Jane Doe",
