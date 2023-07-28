@@ -67,18 +67,31 @@ h1, h2, form {
   padding: 10px;
   font-size: 16px;
 }
+
+#form-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+#analyse-button {
+  background-color: #f44336;
+}
+
+#reset-button {
+  background-color: #5B7C99;
+}
+
 .form-field button {
   display: block;
-  margin: 0 auto;
+  margin: 10px auto;
   padding: 10px 20px;
   font-size: 16px;
-  background-color: #f44336;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
-.form-field button:disabled {
+#analyse-button:disabled, #reset-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
@@ -127,7 +140,7 @@ input[type="text"], textarea {
   padding: 20px;
 }
 #loading-spinner img {
-  width: 100px;
+  width: 60px;
 }
 
 #results_data {
@@ -157,6 +170,10 @@ table td {
   margin: 10px;
   text-align: center;
   font-size: larger;
+}
+
+#job_links.visible {
+  display: block;
 }
 
 input[type="submit"] {
