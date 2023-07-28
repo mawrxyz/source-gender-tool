@@ -37,6 +37,14 @@
                 </div>
             </div>
             
+            <!-- Modal for profile recommendations -->
+            <div id="myModal" class="modal">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <p id="modal_body"></p>
+                </div>
+            </div>
         </div>
     </div>  
 
@@ -203,6 +211,22 @@
 
                         jobLinksDiv.style.display = 'block';
 
+                        const modal = document.getElementById('myModal');
+                        const modalBody = document.getElementById('modal_body');
+                        const closeModal = document.getElementsByClassName('close')[0];
+
+                        // When the user clicks on <span> (x), close the modal
+                        closeModal.onclick = function() {
+                            modal.style.display = 'none';
+                        }
+
+                        // When the user clicks anywhere outside of the modal, close it
+                        window.onclick = function(event) {
+                            if (event.target == modal) {
+                                modal.style.display = 'none';
+                            }
+                        }
+
                         if (majorityJobs.length != 0) {
                             jobLinksDiv.innerHTML = `<p>You might want to consider including more ${minorityGender} voices, or looking for alternative ${minorityGender} sources for some of the following roles (click on each item to see suggested UK-based leads):</p>`;
 
@@ -212,6 +236,9 @@
                             const jobLink = document.createElement('a');
                             jobLink.href = '#';
                             jobLink.textContent = job;
+                            jobLink.style.textDecoration = "none";
+                            jobLink.style.color = "#f44336";
+                            jobLink.style.cursor = "pointer";
                             jobLink.addEventListener('click', (event) => {
                                 event.preventDefault();
                                 fetch('/scrape', {
@@ -223,10 +250,8 @@
                                         return response.text();
                                     }
                                 }).then((html) => {
-                                    let newWindow = window.open("", "_blank");
-                                    newWindow.document.open();
-                                    newWindow.document.write(html);
-                                    newWindow.document.close();
+                                    modalBody.innerHTML = html;  // Populate modal with the HTML
+                                    modal.style.display = 'block';  // Show the modal
                                 });
                             });
 
