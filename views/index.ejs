@@ -27,10 +27,13 @@
             </form>
             <div id="results">
                 <h2>Results</h2>
+                <div id="recommendations">
+                    <div id="results_statement" style="display: none;"></div>
+                    <div id="job_links" style="display: none;"></div>
+                </div>
                 <div id="results_data">
 
                 </div>
-                <div id="job_links" style="display: none;"></div>
             </div>
             
         </div>
@@ -60,16 +63,11 @@
 
         // Function to analyse the article
         function analyseArticle() {
-            // Get the loading spinner
+
+            // Get elements that you need to toggle display properties of
             const loadingSpinner = document.getElementById('loading-spinner');
-
-            // Get the button
             const analyseButton = document.getElementById('analyse-button');
-
-            // Add an event listener to the textarea to enable/disable the button
-            document.getElementById('article_text').addEventListener('input', function() {
-                analyseButton.disabled = this.value.trim().length === 0;
-            });
+            const resultsStatementDiv = document.getElementById('results_statement');
 
             // Set the initial state of the button
             analyseButton.disabled = true;
@@ -77,6 +75,11 @@
             // Hide the button and display the loading spinner
             analyseButton.style.display = 'none';
             loadingSpinner.style.display = 'block';
+
+            // Add an event listener to the textarea to enable/disable the button
+            document.getElementById('article_text').addEventListener('input', function() {
+                analyseButton.disabled = this.value.trim().length === 0;
+            });
 
             const article_text = document.getElementById('article_text').value;
 
@@ -110,15 +113,20 @@
                             unknownCount++;
                         }
                 }
-
                 const totalCount = maleCount + femaleCount + unknownCount;
+
                 // Calculate the percentages
                 const malePercentage = formatPercentage((maleCount / totalCount) * 100);
                 const femalePercentage = formatPercentage((femaleCount / totalCount) * 100);
                 const unknownPercentage = formatPercentage((unknownCount / totalCount) * 100);
 
+
+                // Generate and show results statement
+                resultsStatementDiv.style.display = 'block';
+
                 if (data.length === 0) {
-                    resultsHTML = `<div id="results_statement" style="background-color: #F4D4D5">There were no sources detected in the text, or the only sources quoted are the main newsmaker(s) or subject(s) of the story. If you think this is wrong, please close this dialogue box and try again.</div>`
+                        resultsStatementDiv.innerHTML = "There were no sources detected in the text, or the only sources quoted are the main newsmaker(s) or subject(s) of the story. If you think this is wrong, please close this dialogue box and try again.";
+                        resultsStatementDiv.style.backgroundColor = "#F4D4D5";
                 } else {
 
                     let minorityGender, majorityGender;
@@ -126,55 +134,15 @@
                     if (malePercentage > femalePercentage) {
                         minorityGender = 'female';
                         majorityGender = 'male';
-                        resultsHTML += `<div id="results_statement">There are <b>more men than women</b> quoted in your story.</div>`
+                        resultsStatementDiv.textContent = "There are more men than women quoted in your story.";
                     } else if (malePercentage === femalePercentage) {
-                        resultsHTML += `<div id="results_statement" style="background-color: #A4D1A2">There is a perfect balance of men and women quoted in your story. Great job!</div>`
+                        resultsStatementDiv.textContent = "There is a perfect balance of men and women quoted in your story. Great job!";
+                        resultsStatementDiv.style.backgroundColor = "#A4D1A2";
                     } else {
                         minorityGender = 'male';
                         majorityGender = 'female';
-                        resultsHTML += `<div id="results_statement">There are <b>more women than men</b> quoted in your story.</div>`
+                        resultsStatementDiv.textContent = "There are more women than men quoted in your story.";
                     }
-
-                    resultsHTML += '<h3>Sources quoted</h3>';
-                    resultsHTML += '<table class = "source-table"><tr><th>Source</th><th>Gender</th><th>Role</th><th>Quotes</th></tr>';
-
-                    // Presentation of results for sources
-
-                    for (let person of data) {
-                        resultsHTML += `<tr>
-                            <td>${person.name}</td>
-                            <td>${person.gender}</td>
-                            <td>${person.role}</td>
-                            <td>${person.quotes}</td>
-                        </tr>`;
-                    }
-                    resultsHTML += '</table>';
-
-                    // Append the gender calculation to the table
-                    resultsHTML += '<h3>Breakdown of gender</h3>';
-                    resultsHTML += `<table class="gender-table">
-                            <tr>
-                                <th>Gender</th>
-                                <th>Count</th>
-                                <th>Percentage</th>
-                            </tr>
-                            <tr>
-                                <td>Male</td>
-                                <td>${maleCount}</td>
-                                <td>${malePercentage}%</td>
-                            </tr>
-                            <tr>
-                                <td>Female</td>
-                                <td>${femaleCount}</td>
-                                <td>${femalePercentage}%</td>
-                            </tr>
-                            <tr>
-                                <td>Unknown</td>
-                                <td>${unknownCount}</td>
-                                <td>${unknownPercentage}%</td>
-                            </tr>
-                        </table>`;
-                    
 
                     if (majorityGender != null) {
                         const jobLinksDiv = document.getElementById('job_links');
@@ -225,6 +193,47 @@
                                 jobLinksDiv.innerHTML = `<p>You might want to consider including more ${minorityGender} voices.</p>`
                             }
                         }
+
+                    // Presentation of results for sources
+
+                    resultsHTML += '<h3>Sources quoted</h3>';
+                    resultsHTML += '<table class = "source-table"><tr><th>Source</th><th>Gender</th><th>Role</th><th>Quotes</th></tr>';
+
+                    for (let person of data) {
+                        resultsHTML += `<tr>
+                            <td>${person.name}</td>
+                            <td>${person.gender}</td>
+                            <td>${person.role}</td>
+                            <td>${person.quotes}</td>
+                        </tr>`;
+                    }
+                    resultsHTML += '</table>';
+
+                    // Append the gender calculation to the table
+                    resultsHTML += '<h3>Breakdown of gender</h3>';
+                    resultsHTML += `<table class="gender-table">
+                            <tr>
+                                <th>Gender</th>
+                                <th>Count</th>
+                                <th>Percentage</th>
+                            </tr>
+                            <tr>
+                                <td>Male</td>
+                                <td>${maleCount}</td>
+                                <td>${malePercentage}%</td>
+                            </tr>
+                            <tr>
+                                <td>Female</td>
+                                <td>${femaleCount}</td>
+                                <td>${femalePercentage}%</td>
+                            </tr>
+                            <tr>
+                                <td>Unknown</td>
+                                <td>${unknownCount}</td>
+                                <td>${unknownPercentage}%</td>
+                            </tr>
+                        </table>`;
+                    
                         // Insert the HTML into the results div
                         const resultsDiv = document.getElementById('results_data');
                         resultsDiv.innerHTML = resultsHTML;
@@ -233,9 +242,7 @@
             // Hide the loading spinner and show the analyse button again
             analyseButton.style.display = 'block';
             loadingSpinner.style.display = 'none';
-            
-            // // Display the results in a modal
-            // openModal(resultsHTML);
+        
         })
         .catch(error => {
                 console.error('Error:', error);

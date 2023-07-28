@@ -44,6 +44,10 @@ h1, h2, form {
   color: #f44336;
 }
 
+#job_links {
+  padding: 10px;
+}
+
 #dropdown-arrow {
   display: inline-block;
   margin-left: 5px;
