@@ -1,24 +1,24 @@
 require("dotenv").config()
 
 const express = require("express");
-const bodyParser = require('body-parser');
+const app = express();
+const basicAuth = require('express-basic-auth')
 const unirest = require("unirest");
 const axios = require('axios');
 const { Configuration, OpenAIApi } = require("openai");
 
-// Password protection
-
-var basicAuth = require('express-basic-auth')
+// Set up password authentication
 
 app.use(basicAuth({
-    users: { [process.env.AUTH_USERNAME]: process.env.AUTH_PASSWORD }
+    users: { [process.env.AUTH_USERNAME]: process.env.AUTH_PASSWORD },
+    challenge: true
 }))
 
-// Set up Express framework
-const app = express();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+// Configure app
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
 app.set("view engine", "ejs");
 
