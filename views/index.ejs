@@ -3,6 +3,8 @@
     <head>
         <title>Gender source detector and fixer</title>
         <link rel="stylesheet" type="text/css" href="/css/style.css">
+        <link href="https://fonts.googleapis.com/css2?family=Lora&display=swap" rel="stylesheet"> 
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
     </head>
 <body>
     <h1>Gender source detector and fixer</h1>
@@ -11,11 +13,11 @@
             <form id="text_form">
                 <h2>Text input</h2>
                 <div class="form-field">
-                    <label for="article_text">Enter some article text to see which additional sources are quoted. These do not include the main newsmakers or subjects of the story. Please keep your input to a maximum of 1000 words:</label>
+                    <label for="article_text"><p>Enter some article text to see additional sources quoted, aside from the main newsmaker or subject of the story. Please keep your input to a maximum of 1000 words:</p></label>
 
                     <textarea id="article_text" name="article_text" oninput="countWords(this, document.getElementById('wordCount'))"></textarea>
                 </div>
-                <p>Word count: <span id="wordCount" style="color: black;">0</span>/1000</p>
+                <p style="text-align: right;">Word count: <span id="wordCount" style="color: black;">0</span>/1000</p>
 
                 <div class="form-field" id ="form-buttons">
                     <button id="analyse-button" type="button" onclick="analyseArticle()">Analyse</button>
@@ -229,7 +231,7 @@
                         }
 
                         if (majorityJobs.length != 0) {
-                            jobLinksDiv.innerHTML = `<p>You might want to consider including more ${minorityGender} voices, or looking for alternative ${minorityGender} sources for some of the following roles (click on each item to see suggested UK-based leads):</p>`;
+                            jobLinksDiv.innerHTML = `<p>You might want to consider looking for alternative ${minorityGender} sources for some of the following professional roles (click on each item to see suggested UK-based leads):</p>`;
 
                             const ul = document.createElement('ul');
 
@@ -239,7 +241,7 @@
                                 jobLink.href = '#';
                                 jobLink.textContent = job;
                                 jobLink.style.textDecoration = "none";
-                                jobLink.style.color = "#f44336";
+                                jobLink.style.color = "#5B7C99";
                                 jobLink.style.cursor = "pointer";
                                 jobLink.addEventListener('click', (event) => {
                                     loadingSpinner.style.display = 'block'; // Show loading gif
@@ -263,7 +265,7 @@
                             }
                             jobLinksDiv.appendChild(ul);
                         } else {
-                            jobLinksDiv.innerHTML = `<p>You might want to consider including more ${minorityGender} voices.</p>`
+                            jobLinksDiv.innerHTML = `<p>The sources quoted in this text may play a personal role in the story and therefore be hard to replace with other sources. Nontheless, you might want to consider including more ${minorityGender} perspectives.</p>`
                         }
                     
                     }

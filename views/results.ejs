@@ -30,13 +30,13 @@
             var company = cleanHTML(employees_data[i].company);
             var gender = cleanHTML(employees_data[i].gender);
             var probability = employees_data[i].probability;
+            console.log(`Probability of ${name} being ${gender} = ${probability}`);
             var about = cleanHTML(employees_data[i].about);
         %>
                 <p>Name: <%= name %></p>
                 <p>Title: <%= title %></p>
                 <p>Company/location: <%= company %></p>
                 <p>Gender detected: <%= gender %></p>
-                <p>Probability of being <%= gender.toLowerCase() %> based on first name: <%= probability %></p>
                 <p>About: <%= about %></p>
                 <p>Link: <a href="<%= employees_data[i].link %>"" target="blank"><%= employees_data[i].link %></a></p>
                 <hr>
