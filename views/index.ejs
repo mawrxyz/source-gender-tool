@@ -128,7 +128,6 @@
 
             resultsStatementDiv.style.display = 'none'; // Hide the previous results statement, if any
             jobLinksDiv.style.display = 'none'; // Hide the job links, if any
-            resultsStatementDiv.style.backgroundColor = '#FFCD91'; // Reset background colour to orange
 
             // Set the initial state of the button
             analyseButton.disabled = true;
@@ -190,6 +189,7 @@
                         minorityGender = 'female';
                         majorityGender = 'male';
                         resultsStatementDiv.textContent = "There are more men than women quoted in your story.";
+                        resultsStatementDiv.style.backgroundColor = '#FFCD91'; 
                     } else if (malePercentage === femalePercentage) {
                         resultsStatementDiv.textContent = "There is a perfect balance of men and women quoted in your story. Great job!";
                         resultsStatementDiv.style.backgroundColor = "#A4D1A2";
@@ -197,6 +197,7 @@
                         minorityGender = 'male';
                         majorityGender = 'female';
                         resultsStatementDiv.textContent = "There are more women than men quoted in your story.";
+                        resultsStatementDiv.style.backgroundColor = '#FFCD91'; // Reset background colour to orange
                     }
 
                     if (majorityGender != null) {

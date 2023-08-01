@@ -6,6 +6,14 @@ const unirest = require("unirest");
 const axios = require('axios');
 const { Configuration, OpenAIApi } = require("openai");
 
+// Password protection
+
+var basicAuth = require('express-basic-auth')
+
+app.use(basicAuth({
+    users: { [process.env.AUTH_USERNAME]: process.env.AUTH_PASSWORD }
+}))
+
 // Set up Express framework
 const app = express();
 
