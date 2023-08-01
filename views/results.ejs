@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Results</title>
+    </head>
+<body>
+    <h1>Top results:</h1>
+    <% 
+    function cleanHTML(input) {
+        var output = input.replace(/&#(\d+);/g, function(match, dec) { return String.fromCharCode(dec); })
+                          .replace(/&#x([a-fA-F0-9]+);/g, function(match, hex) { return String.fromCharCode(parseInt(hex, 16)); });
+        output = unescape(output);
+        output = output.replace(/&amp;/g, "&")
+                       .replace(/&lt;/g, "<")
+                       .replace(/&gt;/g, ">")
+                       .replace(/&quot;/g, '"')
+                       .replace(/&apos;/g, "'");
+        output = output.replace(/<\/?[^>]+(>|$)/g, "");
+        return output;
+    }
+
+    if(employees_data.length == 0){
+        %>
+            <p>No relevant results found.</p>
+        <%
+    } else {
+        for(var i = 0; i < employees_data.length; i++) { 
+            var name = cleanHTML(employees_data[i].name);
+            var title = cleanHTML(employees_data[i].title);
+            var company = cleanHTML(employees_data[i].company);
+            var gender = cleanHTML(employees_data[i].gender);
+            var probability = employees_data[i].probability;
+            var about = cleanHTML(employees_data[i].about);
+        %>
+                <p>Name: <%= name %></p>
+                <p>Title: <%= title %></p>
+                <p>Company/location: <%= company %></p>
+                <p>Gender detected: <%= gender %></p>
+                <p>Probability based on first name: <%= probability %></p>
+                <p>About: <%= about %></p>
+                <p>Link: <a href="<%= employees_data[i].link %>"" target="blank"><%= employees_data[i].link %></a></p>
+                <hr>
+        <% }
+    }
+    %>
+
+    
+</body>
+</html>
