@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Gender source detector and fixer</title>
+        <title>Gender source detector and suggestor</title>
         <link rel="stylesheet" type="text/css" href="/css/style.css">
         <link href="https://fonts.googleapis.com/css2?family=Lora&display=swap" rel="stylesheet"> 
         <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
     </head>
 <body>
-    <h1>Gender source detector and fixer</h1>
+    <h1>Gender source detector and suggestor</h1>
     <div id="container">
         <div id="content">
             <form id="text_form">
@@ -217,6 +217,7 @@
                         const modal = document.getElementById('myModal');
                         const modalBody = document.getElementById('modal_body');
                         const closeModal = document.getElementsByClassName('close')[0];
+                        const jobContentsMap = new Map(); // object to store contents of each job title when clicked so it doesn't have to re-run if clicked again
 
                         // When the user clicks on <span> (x), close the modal
                         closeModal.onclick = function() {
@@ -246,20 +247,29 @@
                                 jobLink.addEventListener('click', (event) => {
                                     loadingSpinner.style.display = 'block'; // Show loading gif
                                     event.preventDefault();
-                                    fetch('/scrape', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ job_title: encodeURIComponent(job), minority_gender: minorityGender })
-                                    }).then((response) => {
-                                        if (response.ok) {
-                                            return response.text();
-                                        }
-                                    }).then((html) => {
-                                        modalBody.innerHTML = html;  // Populate modal with the HTML
+                                    // If the results for that role are already in the map, use it
+                                    if (jobContentsMap.has(job)) {
+                                        modalBody.innerHTML = jobContentsMap.get(job);
                                         loadingSpinner.style.display = 'none'; // Hide loading gif
                                         modal.style.display = 'block';  // Show the modal
-                                    });
-                            });
+                                    } else {
+                                        // Otherwise, fetch it
+                                        fetch('/scrape', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ job_title: encodeURIComponent(job), minority_gender: minorityGender })
+                                        }).then((response) => {
+                                            if (response.ok) {
+                                                return response.text();
+                                            }
+                                        }).then((html) => {         
+                                            jobContentsMap.set(job, html); // Save the fetched HTML in the map for future use
+                                            modalBody.innerHTML = html;  // Populate modal with the HTML
+                                            loadingSpinner.style.display = 'none'; // Hide loading gif
+                                            modal.style.display = 'block';  // Show the modal
+                                        });
+                                    }
+                                });
                             li.appendChild(jobLink);
                             ul.appendChild(li);
                             }
