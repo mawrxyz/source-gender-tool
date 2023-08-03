@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Gender source detector and suggestor</title>
+        <title>EquiQuote: Surce Gender Detector and Fixer</title>
         <link rel="stylesheet" type="text/css" href="/css/style.css">
         <link href="https://fonts.googleapis.com/css2?family=Lora&display=swap" rel="stylesheet"> 
         <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+        <!-- Favicons -->
+        <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
     </head>
 <body>
-    <h1>Gender source detector and suggestor</h1>
-    <div id="container">
+    <h1>EquiQuote: Source Gender Detector and Fixer</h1>
+    <div id="input_container">
         <div id="content">
             <form id="text_form">
                 <h2>Text input</h2>
@@ -27,15 +31,16 @@
             </form>
             <div id="results">
                 <h2>Results</h2>
-                <div id="recommendations">
-                    <div id="results_statement" style="display: none;"></div>
-                    <div id="job_links" style="display: none;"></div>
-                </div>
-                <div id="loading-spinner" style="display: none;">
-                    <img src="/images/loading.gif" alt="Loading...">
-                </div>
-                <div id="results_data">
-
+                <div id="results_container">
+                    <div id="recommendations">
+                        <div id="results_statement" style="display: none;"></div>
+                        <div id="job_links" style="display: none;"></div>
+                    </div>
+                    <div id="loading-spinner" style="display: none;">
+                        <img src="/images/loading.gif" alt="Loading...">
+                    </div>
+                    <div id="results_data">
+                    </div>
                 </div>
             </div>
             
@@ -190,7 +195,7 @@
                     if (malePercentage > femalePercentage) {
                         minorityGender = 'female';
                         majorityGender = 'male';
-                        resultsStatementDiv.textContent = "There are more men than women quoted in your story.";
+                        resultsStatementDiv.textContent = `There are more men than women quoted in your story.`;
                         resultsStatementDiv.style.backgroundColor = '#FFCD91'; 
                     } else if (malePercentage === femalePercentage) {
                         resultsStatementDiv.textContent = "There is a perfect balance of men and women quoted in your story. Great job!";
@@ -198,7 +203,7 @@
                     } else {
                         minorityGender = 'male';
                         majorityGender = 'female';
-                        resultsStatementDiv.textContent = "There are more women than men quoted in your story.";
+                        resultsStatementDiv.textContent = `There are more women than men quoted in your story.`;
                         resultsStatementDiv.style.backgroundColor = '#FFCD91'; // Reset background colour to orange
                     }
 
@@ -232,7 +237,13 @@
                         }
 
                         if (majorityJobs.length != 0) {
-                            jobLinksDiv.innerHTML = `<p>You might want to consider looking for alternative ${minorityGender} sources for some of the following professional roles (click on each item to see suggested UK-based leads):</p>`;
+
+                            if (majorityGender === 'male') {
+                                jobLinksDiv.innerHTML = `<p>There were <b>${maleCount} men</b> (${malePercentage}%) and <b>${femaleCount} women</b> (${femalePercentage}%) quoted as additional sources in your story. Research shows that on average, men are quoted about three times more than women in UK news articles, reflecting an underrepresentation of women's voices in public discourse.</p>`
+                            } else if (majorityGender === 'female') {
+                                jobLinksDiv.innerHTML = `<p>There were <b>${femaleCount} women</b> (${femalePercentage}%) and <b>${maleCount} men</b> (${malePercentage}%) quoted as additional sources in your story. Prior research shows that women tend to be quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. To avoid reinforcing gendered stereotypes, it is desirable to try to get a good balance of voices.</p>`
+                            }
+                            jobLinksDiv.innerHTML += `<p>You might want to consider looking for alternative ${minorityGender} sources for some of the following professional roles (click on each item to see suggested UK-based leads):</p>`;
 
                             const ul = document.createElement('ul');
 
@@ -294,35 +305,11 @@
                         </tr>`;
                     }
                     resultsHTML += '</table>';
-
-                    // Append the gender calculation to the table
-                    resultsHTML += '<h3>Breakdown of gender</h3>';
-                    resultsHTML += `<table class="gender-table">
-                            <tr>
-                                <th>Gender</th>
-                                <th>Count</th>
-                                <th>Percentage</th>
-                            </tr>
-                            <tr>
-                                <td>Male</td>
-                                <td>${maleCount}</td>
-                                <td>${malePercentage}%</td>
-                            </tr>
-                            <tr>
-                                <td>Female</td>
-                                <td>${femaleCount}</td>
-                                <td>${femalePercentage}%</td>
-                            </tr>
-                            <tr>
-                                <td>Unknown</td>
-                                <td>${unknownCount}</td>
-                                <td>${unknownPercentage}%</td>
-                            </tr>
-                        </table>`;
                     
-                        // Insert the HTML into the results div
-                        resultsDiv.innerHTML = resultsHTML;
-                    }
+                    // Insert the HTML into the results div
+                    resultsDiv.innerHTML = resultsHTML;     
+
+                }
 
             // Hide the loading spinner and enable the analyse button again
             analyseButton.disabled = true;

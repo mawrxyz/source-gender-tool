@@ -12,13 +12,13 @@ body {
   color: #212121;
 }
 
-#container {
+#input_container {
   display: flex;
   align-items: center;
   flex-direction: column;
   width: 100%;
-  max-height: calc(100vh - 40px); /* Adjust this value based on the height of your h1 */
-  overflow: hidden;
+  max-height: calc(100vh - 40px); 
+  overflow: auto;
 }
 
 #content {
@@ -31,6 +31,12 @@ body {
 #results {
   width: 50%;
   height: 100%;
+  border-left: 1px solid #ccc; /* Adds a vertical line to the left of results */
+}
+
+#results_container {
+  max-height: calc(100vh - 40px);
+  overflow: auto; /* Scroll-bar */
 }
 
 h1 {
@@ -76,7 +82,7 @@ h2 {
   margin: 15% auto; /* 15% from the top and centered */
   padding: 20px;
   border: 1px solid #888;
-  width: 80%; /* Could be more or less, depending on screen size */
+  width: 50%; 
 }
 
 /* The Close Button */
@@ -151,7 +157,6 @@ label {
 #text_form {
   width: 50%;
   margin-left: 20px;
-  border-right: 1px solid #ccc; /* Adds a vertical line to the right side of the form */
   padding-right: 10px; /* Adds some space between the form and the border */
   box-sizing: border-box;
 }
@@ -190,9 +195,8 @@ label p {
 }
 
 #results_data {
+  margin: 10px;
   padding: 0 20px 20px 20px;
-  height: 400px;
-  overflow-y: auto; /* Adds a scroll bar when the content is too long */
 }
 
 /* Table styles */
