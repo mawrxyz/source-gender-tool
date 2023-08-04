@@ -11,6 +11,7 @@ body {
   font-weight: 400;
   font-size: 0.9em;
   color: #212121;
+  overflow: hidden;
 }
 
 #input_container {
@@ -32,12 +33,12 @@ body {
 #results {
   width: 50%;
   height: 100%;
-  overflow: auto;
+  box-sizing: border-box;
 }
 
 #results_container {
-  padding: 10px;
-  max-height: calc(100vh - 40px);
+  padding: 20px 10px;
+  max-height: calc(100vh - 200px);
   overflow: auto; /* Scroll-bar */
 }
 
@@ -133,8 +134,12 @@ textarea {
 #form-buttons {
   display: flex;
   flex-direction: column;
-  font-variant: small-caps;
+}
+
+#analyse-button, #reset-button {
+  font-size: 0.9em;
   font-weight: 500;
+  font-variant: small-caps;
 }
 
 #analyse-button {
