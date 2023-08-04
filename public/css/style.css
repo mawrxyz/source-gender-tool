@@ -7,7 +7,8 @@ body {
   padding: 0;
   height: 100vh;
   box-sizing: border-box;
-  font-family: "Noto Serif", "open sans", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 400;
   font-size: 0.9em;
   color: #212121;
 }
@@ -17,8 +18,7 @@ body {
   align-items: center;
   flex-direction: column;
   width: 100%;
-  max-height: calc(100vh - 40px); 
-  overflow: auto;
+  height: calc(100vh - 40px); 
 }
 
 #content {
@@ -26,15 +26,17 @@ body {
   justify-content: space-between;
   width: 100%;
   height: 100%;
+  position: relative;
 }
 
 #results {
   width: 50%;
   height: 100%;
-  border-left: 1px solid #ccc; /* Adds a vertical line to the left of results */
+  overflow: auto;
 }
 
 #results_container {
+  padding: 10px;
   max-height: calc(100vh - 40px);
   overflow: auto; /* Scroll-bar */
 }
@@ -43,10 +45,11 @@ h1 {
   font-size: 2.5em;
   line-height: 1.2;
   margin-bottom: 30px;
+  color: #212121;
 }
 
-h1, h2 {
-  font-family: "Lora", "open sans", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+h1 {
+  font-family: "Roboto Slab", "Times New Roman", "Georgia", serif;
 }
 
 h1, h2, form {
@@ -55,7 +58,9 @@ h1, h2, form {
 
 h2 {
   font-size: 1.5em;
-  color: #f44336;
+  font-weight: bold;
+  font-variant: small-caps;
+  color: #3a3030;
 }
 
 #job_links {
@@ -108,29 +113,36 @@ label {
   margin-bottom: 10px;
 }
 
+label p {
+  font-size: 1.1em;
+  font-weight: 300;
+}
+
 textarea, button {
-  font-family: "Noto Serif", "open sans", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
 }
 
 textarea {
   width: 100%;
   height: 200px;
   padding: 10px;
-  font-size: 0.9em;
+  font-size: 1em;
   background-color: #F5F5F5;
 }
 
 #form-buttons {
   display: flex;
   flex-direction: column;
+  font-variant: small-caps;
+  font-weight: 500;
 }
 
 #analyse-button {
-  background-color: #f44336;
+  background-color: #CD0010;
 }
 
 #reset-button {
-  background-color: #5B7C99;
+  background-color: #181414;
 }
 
 button {
@@ -156,9 +168,12 @@ label {
 
 #text_form {
   width: 50%;
+  height: 100%; 
+  overflow: auto;
   margin-left: 20px;
   padding-right: 10px; /* Adds some space between the form and the border */
   box-sizing: border-box;
+  border-right: 1px solid #ccc;
 }
 
 form input {
@@ -194,7 +209,7 @@ label p {
   width: 100px;
 }
 
-#results_data {
+#chart, #results_data {
   margin: 10px;
   padding: 0 20px 20px 20px;
 }
@@ -227,11 +242,52 @@ table td {
   display: block;
 }
 
-input[type="submit"] {
-  padding: 10px 20px;
-  border-radius: 4px;
-  border: none;
-  background-color: #f44336;
-  color: white;
+/* Show confidence level in tool tip on hover over gender info icon */
+.info-icon {
+  position: relative;
+  display: inline-block;
+}
+
+.info-icon i {
+  color: #aaa;
+}
+
+.info-icon i:hover, .info-icon i:focus {
+  color: black;
   cursor: pointer;
+}
+
+.table-tooltip {
+  position: absolute;
+  opacity: 0;
+  background-color: white;
+  border: solid 1px;
+  border-radius: 5px;
+  padding: 10px;
+  display: none;
+  bottom: 150%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width: auto;
+  height: auto;
+  font: 12px sans-serif;
+  text-align: left;
+  z-index: 1; /* Places the tooltip above other elements */
+}
+
+
+/* Tooltips for D3 chart */
+
+.tooltip {
+  position: absolute;
+  text-align: center;
+  width: auto;
+  height: auto;
+  padding: 2px;
+  font: 12px sans-serif;
+  text-align: left;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
 }

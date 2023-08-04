@@ -57,33 +57,42 @@ app.post('/detect', async (req, res) => {
         const response = await openai.createChatCompletion({
             model: "gpt-4",
             messages: [
-                {role: "system", content: `You will be provided with a block of text, and your task will be to extract the names of individuals who are directly quoted as saying something in the text, their gender, and their connection to the subject of the story or the reason for their inclusion in the story. 
+                {role: "system", content: `You will be provided with a block of text, and your task will be to extract the names of individuals who are quoted as saying something in the text, their gender, and their connection to the subject of the story or the reason for their inclusion in the story. 
                 
-                **IMPORTANT: Only include individuals who are providing supplementary comments or perspectives who could be replaced by others of similar background, experiences or expertise. Exclude individuals who are the main subject(s) of the news article. Also, exclude individuals who are only mentioned but do not provide direct quotes.**
+                **IMPORTANT: Only include individuals who are providing supplementary comments or perspectives who could be replaced by others of similar background, experiences or expertise. Exclude individuals who are the main subject(s) of the news article. Also, exclude individuals who are only mentioned but do not provide quotes.**
 
                 Describe each individual's connection (or "role") in broad terms that explain why their perspectives are valuable to the story. This could be due to professional expertise, personal experiences, a shared background with the subject of the story, or any other aspect that makes their perspectives unique and irreplaceable. Do not mention specific company names or overly detailed job titles, unless these details are key to the person's role in the story. 
                 
                 If the role is a professional one, phrase the result such that someone with a similar background or expertise could be found by searching for the role on a job site like LinkedIn, and put "yes" as the value for the key "linkedin". Otherwise, if the role is highly personal such as the relative of the main subject or a resident of a city, put "no" for the key "linkedin". 
                 
-                State the individual's gender based on pronouns or honorifics used in the text. If no clear indication is given, make an educated guess based on the name or other contextual clues.
+                State the individual's gender based on pronouns or honourifics used in the text. If no clear indication is given, make an educated guess based on the name or other contextual clues. If it is really ambiguous, such as if the name is gender neutral and there are no pronouns or honourifics used, just state the gender as "unknown". Provide a confidence level (0 to 100) based on how sure you are that you are right about the gender.
 
-                Extract the quotes that are used, with each quote presented as a list item. There must be at least one quote for each individual included.
+                Extract the quotes that are used, with each line containing a direct or indirect quote presented as a list item with the exact wording used in the text. There must be at least one quote for each individual included. Otherwise, omit that individual. 
                 
                 Please return your response as an array of JavaScript objects in British English, with each object representing an individual. For example:
                 [
                 {
                 "name": "Jane Doe",
-                "gender": "female",
-                "role": "senior political analyst at a think tank",
+                "gender": "Female",
+                "confidence": "100",
+                "role": "Senior political analyst at a think tank",
                 "linkedin": "yes",
-                "quotes": "<ul><li>'This is a highly concerning situation,' Jane said.</li><li>'It is hard to say which way this will go. We shall wait and see.'</li><li>Ms Doe added that she did not think the government should make any rash moves.</li></ul>"
+                "quotes": "<ul><li>Jane Doe, a senior political analyst at US think tank Think Politics, said that this was a 'highly concerning' situation.</li><li>'It is hard to say which way this will go. We shall wait and see.'</li><li>Ms Doe added that she did not think the government should make any rash moves.</li></ul>"
                 },
                 {
-                "name": "John Doe",
-                "gender": "male",
-                "role": "resident of Cardiff city",
+                "name": "Robin Doe",
+                "gender": "Male",
+                "confidence": "75",
+                "role": "Resident of Cardiff city",
                 "linkedin": "no",
-                "quotes": "<ul><li>'In general, I support the government's policies'</li></ul>"
+                "quotes": "<ul><li>Cardiff resident Robin Doe said that he largely supported the government's policies regarding sustainable energy.</li></ul>"
+                },
+                "name": "Alex Tan",
+                "gender": "Unknown",
+                "confidence": "50",
+                "role": "Defence lawyer",
+                "linkedin": "no",
+                "quotes": "<ul><li>'My client is innocent, and we will shortly provide new evidence that will prove it,' her lawyer Alex Tan said.</li></ul>"
                 }
                 ]`},
                 {role: "user", content: article_text}
@@ -102,6 +111,7 @@ app.post('/detect', async (req, res) => {
             // Process each individual's name, gender, and role separately
             let name = individual.name;
             let gender = individual.gender;
+            let confidence = individual.confidence;
             let role = individual.role;
             let linkedin = individual.linkedin;
             let quotes = individual.quotes;
@@ -109,6 +119,7 @@ app.post('/detect', async (req, res) => {
             perspectives_data.push({
                 name: name,
                 gender: gender,
+                confidence: confidence,
                 role: role,
                 linkedin: linkedin,
                 quotes: quotes
