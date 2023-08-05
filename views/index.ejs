@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>EquiQuote: Source Gender Detector and Fixer</title>
+        <title>EquiQuote: The Source Gender Tool</title>
         <link rel="stylesheet" type="text/css" href="/css/style.css">
         <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;1,100;1,400;1,500&display=swap" rel="stylesheet">
         <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -13,21 +13,23 @@
         <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
     </head>
 <body>
-    <h1>EquiQuote: Source Gender Detector and Fixer</h1>
-    <div id="input_container">
+    <h1>EquiQuote: The Source Gender Tool</h1>
+    <div id="main_container">
         <div id="content">
             <form id="text_form">
                 <h2>Text input</h2>
-                <div class="form-field">
-                    <label for="article_text"><p>Enter some article text to see additional sources quoted, aside from the main newsmaker or subject of the story. Please keep your input to a maximum of 1000 words:</p></label>
+                <div id="form_container">
+                    <div class="form-field">
+                        <label for="article_text"><p>Enter some article text to see additional sources quoted, aside from the main newsmaker or subject of the story. Please keep your input to a maximum of 1000 words:</p></label>
 
-                    <textarea id="article_text" name="article_text" oninput="countWords(this, document.getElementById('wordCount'))"></textarea>
-                </div>
-                <p style="text-align: right;">Word count: <span id="wordCount" style="color: #212121;">0</span>/1000</p>
+                        <textarea id="article_text" name="article_text" oninput="countWords(this, document.getElementById('wordCount'))"></textarea>
+                    </div>
+                    <p style="text-align: right;">Word count: <span id="wordCount" style="color: #212121;">0</span>/1000</p>
 
-                <div class="form-field" id ="form-buttons">
-                    <button id="analyse-button" type="button" onclick="analyseArticle()">ANALYSE</button>
-                    <button id="reset-button" type="button" onclick="resetArticle()">RESET</button>
+                    <div class="form-field" id ="form-buttons">
+                        <button id="analyse-button" type="button" onclick="analyseArticle()">ANALYSE</button>
+                        <button id="reset-button" type="button" onclick="resetArticle()">RESET</button>
+                    </div>
                 </div>
             
             </form>
@@ -43,7 +45,7 @@
                     </div>
                     
                     <div id="chart"></div>
-                    <div id="results_data">
+                    <div id="source_table">
                     </div>
                 </div>
             </div>
@@ -59,393 +61,6 @@
         </div>
     </div>  
 
-    <script>
-
-        // Set the buttons as disabled if textbox is blank
-        document.addEventListener("DOMContentLoaded", function() {
-            const analyseButton = document.getElementById('analyse-button');
-            const resetButton = document.getElementById('reset-button');
-            const articleText = document.getElementById('article_text');
-
-            // Disable the buttons if textarea is empty
-            analyseButton.disabled = !articleText.value.trim();
-            resetButton.disabled = !articleText.value.trim();
-        });
-
-        // Add an event listener to the textarea to enable/disable the buttons based on wether there is input text
-        document.getElementById('article_text').addEventListener('input', function() {
-                const analyseButton = document.getElementById('analyse-button');
-                const resetButton = document.getElementById('reset-button');
-
-                // The "Analyse" button is disabled when the textarea is empty
-                analyseButton.disabled = !this.value.trim();
-                resetButton.disabled = !this.value.trim();
-        });
-
-        // Function to reset the text box if "reset" button is clicked
-        function resetArticle() {
-            // Clear the text area
-            document.getElementById('article_text').value = '';
-
-            // Clear the word count
-            document.getElementById('wordCount').textContent = '0';
-
-            // Clear the results
-            document.getElementById('results_data').innerHTML = '';
-            document.getElementById('results_statement').style.display = 'none';
-            document.getElementById('results_statement').style.backgroundColor = '#FFCD91';
-            document.getElementById('results_statement').innerHTML = '';
-            document.getElementById('job_links').style.display = 'none';
-            document.getElementById('job_links').innerHTML = '';
-
-            // Clear D3 chart
-            d3.select("#chart").html("");
-            
-            // Re-enable the analyse button
-            document.getElementById('analyse-button').disabled = false;
-            document.getElementById('analyse-button').style.display = 'block';
-            
-            // Hide the loading spinner
-            document.getElementById('loading-spinner').style.display = 'none';
-        }
-
-        // Function for word counter
-        function countWords(textarea, display) {
-            let text = textarea.value;
-            let words = text.split(/\s+/).filter(function(word) { return word.length > 0; }); // split by spaces and remove empty words
-            display.textContent = words.length;
-            if (words.length > 1000) {
-                words = words.slice(0, 1000); // limit words array to 1000 elements
-                textarea.value = words.join(' '); // update textarea value with limited words
-                display.textContent = words.length;
-                display.style.color = '#CD0010';
-            } else {
-                display.style.color = '#212121';
-            }
-        }
-
-        // Function to make sure percentages don't have trailing decimals
-        function formatPercentage(num) {
-            return num % 1 === 0 ? Math.floor(num) : num.toFixed(2);
-        }
-
-        // Function to analyse the article
-        function analyseArticle() {
-            const resultsDiv = document.getElementById('results_data');
-            resultsDiv.innerHTML = ''; // Clear the previous results, if any
-
-            // Clear D3 chart, if previously generated
-            d3.select("#chart").html("");
-
-            // Get elements that we need to toggle display properties of
-            const loadingSpinner = document.getElementById('loading-spinner');
-            const analyseButton = document.getElementById('analyse-button');
-            const resultsStatementDiv = document.getElementById('results_statement');
-            const jobLinksDiv = document.getElementById('job_links');
-
-            resultsStatementDiv.style.display = 'none'; // Hide the previous results statement, if any
-            jobLinksDiv.style.display = 'none'; // Hide the job links, if any
-
-            // Set the initial state of the button
-            analyseButton.disabled = true;
-
-            // Display the loading spinner
-            loadingSpinner.style.display = 'block';
-
-            const article_text = document.getElementById('article_text').value;
-
-            if (!article_text.trim()) {
-                alert('Please enter some article text to analyse.');
-                return;
-            }
-
-            fetch('/detect', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ article_text: article_text })
-            })
-            .then(response => {
-                    if (!response.ok) { throw response }
-                    return response.json()  //we only get here if there is no error
-                })
-            .then(data => {
-                let resultsHTML = '';
-
-                // Count the gender distribution
-                let maleCount = 0;
-                let femaleCount = 0;
-                let unknownCount = 0;
-                for (let person of data) {
-                    if (person.gender.toLowerCase() === 'male') {
-                                maleCount++;
-                        } else if (person.gender.toLowerCase() === 'female') {
-                            femaleCount++;
-                        } else {
-                            unknownCount++;
-                        }
-                }
-                const totalCount = maleCount + femaleCount + unknownCount;
-
-                // Calculate the percentages
-                const malePercentage = formatPercentage((maleCount / totalCount) * 100);
-                const femalePercentage = formatPercentage((femaleCount / totalCount) * 100);
-                const unknownPercentage = formatPercentage((unknownCount / totalCount) * 100);
-
-                // Generate and show results statement
-                resultsStatementDiv.style.display = 'block';
-
-                let minorityGender, majorityGender;
-
-                if (data.length === 0) {
-                    resultsStatementDiv.innerHTML = "There were no sources detected in the text, or the only sources quoted are the main newsmaker(s) or subject(s) of the story. If you think this is wrong, please click on the 'Reset' button and try again.";
-                    resultsStatementDiv.style.backgroundColor = "#F4D4D5";
-                } else {
-                    jobLinksDiv.style.display = 'block';
-
-                    if (unknownCount > 0 && maleCount === 0 && femaleCount === 0)  {
-                        resultsStatementDiv.innerHTML = "We were not able to confidently determine the gender of any sources quoted.";
-                        resultsStatementDiv.style.backgroundColor = '#FFCD91';
-                        jobLinksDiv.innerHTML = `<p>Gender is complex and not limited to "male" or "female". Furthermore, naming conventions vary by culture and individual preference, so it is not always possible to accurately determine the gender of a person by their name alone.</p><p>Nonetheless, research shows that on average, men are quoted about three times more than women in UK news articles, reflecting an underrepresentation of women's voices in public discourse. It is always good to try to get a good balance of voices in your story.</p>`;
-                    } else {
-
-                        if (malePercentage > femalePercentage) {
-                            minorityGender = 'female';
-                            majorityGender = 'male';
-                            resultsStatementDiv.textContent = `There are more men than women quoted in your story.`;
-                            resultsStatementDiv.style.backgroundColor = '#FFCD91'; 
-                        } else if (malePercentage === femalePercentage) {
-                            resultsStatementDiv.textContent = "There is a perfect balance of men and women quoted in your story. Great job!";
-                            resultsStatementDiv.style.backgroundColor = "#A4D1A2";
-                        } else {
-                            minorityGender = 'male';
-                            majorityGender = 'female';
-                            resultsStatementDiv.textContent = `There are more women than men quoted in your story.`;
-                            resultsStatementDiv.style.backgroundColor = '#FFCD91';
-                        }
-                    }
-
-                    // Prepare the data for chart
-
-                    let chartData = [
-                        {category: 'Men', count: maleCount, percentage: malePercentage},
-                        {category: 'Women', count: femaleCount, percentage: femalePercentage},
-                        {category: 'Others/unknown', count: unknownCount, percentage: unknownPercentage}
-                    ];
-
-                    // Define the chart dimensions
-                    let margin = {top: 20, right: 20, bottom: 30, left: 50};
-                    let width = 600 - margin.left - margin.right;
-                    let height = 400 - margin.top - margin.bottom;
-
-                    // Clear previous chart if it exists
-                    d3.select("#chart").html("");
-
-                    // Create the SVG container for the chart
-                    let svg = d3.select("#chart").append("svg")
-                        .attr("width", width + margin.left + margin.right)
-                        .attr("height", height + margin.top * 3)
-                        .append("g")
-                        .attr("transform", `translate(${margin.left},${margin.top * 2})`);
-
-                    // Add title to the chart
-                    svg.append("text")
-                        .attr("x", width / 2)
-                        .attr("y", 0 - (margin.top / 2))
-                        .attr("text-anchor", "middle")
-                        .style("font-size", "1.3em")
-                        .text("Breakdown of Source Gender");
-
-                    // Create the x scale
-                    let x = d3.scaleBand()
-                        .domain(chartData.map(d => d.category))  // The range of the data (categories)
-                        .range([0, width])  // The range of the output (0 to width of chart)
-                        .padding(0.1);  // Space between bars
-
-                    // Create the y scale
-                    let y = d3.scaleLinear()
-                        .domain([0, Math.max(5, d3.max(chartData, d => d.count))])  // Max count of 5
-                        .range([height, 0]);  // The range of the output (height to 0 of chart)
-
-                    // Add the x-axis
-                    svg.append("g")
-                        .attr("transform", `translate(0,${height})`)
-                        .call(d3.axisBottom(x))
-                        .selectAll("text")  
-                        .style("font-size", "0.8rem");
-
-                    // Add the y-axis
-                    svg.append("g")
-                        .call(d3.axisLeft(y).tickFormat(d3.format("d")).ticks(5))
-                        .selectAll("text")  
-                        .style("font-size", "0.8rem");
-
-                    // Define the colors for each category
-                    let color = d3.scaleOrdinal()
-                        .domain(chartData.map(d => d.category))
-                        .range(["#1f77b4", "#ff7f0e", "#2ca02c"]);
-
-                    // Tooltip for percentages
-                    let tooltip = d3.select("#chart").append("div")
-                        .attr("class", "tooltip")
-                        .style("opacity", 0)
-                        .style("position", "absolute")
-                        .style("background-color", "white")
-                        .style("border", "solid")
-                        .style("border-width", "1px")
-                        .style("border-radius", "5px")
-                        .style("padding", "10px");
-
-                    // Add the bars
-                    svg.selectAll(".bar")
-                        .data(chartData)
-                        .enter().append("rect")
-                        .attr("class", "bar")
-                        .attr("x", d => x(d.category))
-                        .attr("y", d => y(d.count))
-                        .attr("width", x.bandwidth())
-                        .attr("height", d => height - y(d.count))
-                        .attr("fill", d => color(d.category))
-                        .on("mouseover", (event, d) => {
-                            tooltip.transition()
-                                .duration(200)
-                                .style("opacity", .9);
-                            tooltip.html(`<div style="text-align: center;"><b>${d.category.toUpperCase()}</b></div>
-                            Count: ${d.count}<br>Proportion of total: ${d.percentage}%`)
-                                .style("left", (event.pageX - tooltip.node().offsetWidth / 2) + "px")
-                                .style("top", (event.pageY - tooltip.node().offsetHeight - 10) + "px");
-                        })
-                        .on("mouseout", d => {
-                            tooltip.transition()
-                                .duration(500)
-                                .style("opacity", 0);
-                        });
-
-                    if (majorityGender != null) {
-                        
-                        const majorityJobs = [];
-
-                        for (let person of data) {
-                            if (person.gender.toLowerCase() === majorityGender && person.linkedin === 'yes') {
-                                majorityJobs.push(person.role);
-                            }
-                        }
-
-                        const modal = document.getElementById('myModal');
-                        const modalBody = document.getElementById('modal_body');
-                        const closeModal = document.getElementsByClassName('close')[0];
-                        const jobContentsMap = new Map(); // object to store contents of each job title when clicked so it doesn't have to re-run if clicked again
-
-                        // When the user clicks on <span> (x), close the modal
-                        closeModal.onclick = function() {
-                            modal.style.display = 'none';
-                        }
-
-                        // When the user clicks anywhere outside of the modal, close it
-                        window.onclick = function(event) {
-                            if (event.target == modal) {
-                                modal.style.display = 'none';
-                            }
-                        }
-
-                        if (majorityJobs.length != 0) {
-
-                            if (majorityGender === 'male') {
-                                jobLinksDiv.innerHTML = `<p>There ${maleCount === 1 ? 'was' : 'were'} <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> (${malePercentage}%) and <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> (${femalePercentage}%) quoted as additional sources in your story. Research shows that on average, men are quoted about three times more than women in UK news articles, reflecting an underrepresentation of women's voices in public discourse.</p>`
-                            } else if (majorityGender === 'female') {
-                                jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${maleCount === 1 ? 'woman' : 'women'}</b> (${femalePercentage}%) and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> (${malePercentage}%) quoted as additional sources in your story. Prior research shows that women tend to be quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. To avoid reinforcing gendered stereotypes, it is desirable to try to get a good balance of voices.</p>`
-                            }
-                            jobLinksDiv.innerHTML += `<p>You might want to consider looking for alternative ${minorityGender} sources for some of the following professional roles (click on each item to see suggested UK-based leads):</p>`;
-
-                            const ul = document.createElement('ul');
-
-                            for (let job of majorityJobs) {
-                                const li = document.createElement('li');
-                                const jobLink = document.createElement('a');
-                                jobLink.href = '#';
-                                jobLink.textContent = job;
-                                jobLink.style.textDecoration = "none";
-                                jobLink.style.color = "#CD0010";
-                                jobLink.style.cursor = "pointer";
-                                jobLink.addEventListener('click', (event) => {
-                                    loadingSpinner.style.display = 'block'; // Show loading gif
-                                    event.preventDefault();
-                                    // If the results for that role are already in the map, use it
-                                    if (jobContentsMap.has(job)) {
-                                        modalBody.innerHTML = jobContentsMap.get(job);
-                                        loadingSpinner.style.display = 'none'; // Hide loading gif
-                                        modal.style.display = 'block';  // Show the modal
-                                    } else {
-                                        // Otherwise, fetch it
-                                        fetch('/scrape', {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ job_title: encodeURIComponent(job), minority_gender: minorityGender })
-                                        }).then((response) => {
-                                            if (response.ok) {
-                                                return response.text();
-                                            }
-                                        }).then((html) => {         
-                                            jobContentsMap.set(job, html); // Save the fetched HTML in the map for future use
-                                            modalBody.innerHTML = html;  // Populate modal with the HTML
-                                            loadingSpinner.style.display = 'none'; // Hide loading gif
-                                            modal.style.display = 'block';  // Show the modal
-                                        });
-                                    }
-                                });
-                            li.appendChild(jobLink);
-                            ul.appendChild(li);
-                            }
-                            jobLinksDiv.appendChild(ul);
-                        } else {
-                            jobLinksDiv.innerHTML = `<p>The sources quoted in this text may play a personal role in the story and therefore be hard to replace with other sources. Nontheless, you might want to consider including more ${minorityGender} perspectives.</p>`
-                        }
-                    }
-
-                    // Presentation of results for sources
-
-                    resultsHTML += '<table class = "source-table"><tr><th>Source</th><th>Gender</th><th>Role</th><th>Quotes</th></tr>';
-
-                    for (let person of data) {
-                        resultsHTML += `<tr>
-                            <td>${person.name}</td>
-                            <td>${person.gender} <span class="info-icon"><i class="fas fa-info-circle"></i><span class="table-tooltip">GPT-4's confidence level: ${person.confidence}%</span></span></td>
-                            <td>${person.role}</td>
-                            <td>${person.quotes}</td>
-                        </tr>`;
-                    }
-                    resultsHTML += '</table>';
-                    
-                    // Insert the HTML into the results div
-                    resultsDiv.innerHTML = resultsHTML;   
-                    
-                    // Set up the tooltip behavior
-                    $('.info-icon').hover(function(){
-                        $(this).find('.table-tooltip').css("opacity", 1).fadeIn(500);
-                    }, function(){
-                        $(this).find('.table-tooltip').css("opacity", 0).fadeOut(500);
-                    });
-
-                }
-
-            // Hide the loading spinner and enable the analyse button again
-            analyseButton.disabled = true;
-            loadingSpinner.style.display = 'none';
-        
-        })
-        .catch(error => {
-                console.error('Error:', error);
-                
-                // Hide the loading spinner and enable the analyse button in case of an error
-                loadingSpinner.style.display = 'none';
-                analyseButton.disabled = true;
-            });
-        };
-
-    // Add the event listener to the "Analyse" button
-    document.getElementById('analyse-button').addEventListener('click', function() {
-        analyseArticle();
-    });
-
-    </script>
+    <script src="/js/functions.js"></script>
 </body>
 </html>

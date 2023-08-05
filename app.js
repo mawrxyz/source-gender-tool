@@ -65,7 +65,7 @@ app.post('/detect', async (req, res) => {
                 
                 If the role is a professional one, phrase the result such that someone with a similar background or expertise could be found by searching for the role on a job site like LinkedIn, and put "yes" as the value for the key "linkedin". Otherwise, if the role is highly personal such as the relative of the main subject or a resident of a city, put "no" for the key "linkedin". 
                 
-                State the individual's gender based on pronouns or honourifics used in the text. If no clear indication is given, make an educated guess based on the name or other contextual clues. If it is really ambiguous, such as if the name is gender neutral and there are no pronouns or honourifics used, just state the gender as "unknown". Provide a confidence level (0 to 100) based on how sure you are that you are right about the gender.
+                State the individual's gender based on pronouns or honorifics used in the text. If no clear indication is given, make an educated guess based on the name or other contextual clues. If it is really ambiguous, such as if the name is gender neutral and there are no pronouns or honorifics used, just state the gender as "unknown". Briefly provide reasons for your determination of the person's gender.
 
                 Extract the quotes that are used, with each line containing a direct or indirect quote presented as a list item with the exact wording used in the text. There must be at least one quote for each individual included. Otherwise, omit that individual. 
                 
@@ -74,7 +74,7 @@ app.post('/detect', async (req, res) => {
                 {
                 "name": "Jane Doe",
                 "gender": "Female",
-                "confidence": "100",
+                "reasons": "Jane is a common female name. The honorific "Ms" and the pronoun "she" are also used.",
                 "role": "Senior political analyst at a think tank",
                 "linkedin": "yes",
                 "quotes": "<ul><li>Jane Doe, a senior political analyst at US think tank Think Politics, said that this was a 'highly concerning' situation.</li><li>'It is hard to say which way this will go. We shall wait and see.'</li><li>Ms Doe added that she did not think the government should make any rash moves.</li></ul>"
@@ -82,14 +82,14 @@ app.post('/detect', async (req, res) => {
                 {
                 "name": "Robin Doe",
                 "gender": "Male",
-                "confidence": "75",
+                "reasons": "Robin is a unisex name, but the use of the pronoun "he" indicates this source is likely to be male.",
                 "role": "Resident of Cardiff city",
                 "linkedin": "no",
                 "quotes": "<ul><li>Cardiff resident Robin Doe said that he largely supported the government's policies regarding sustainable energy.</li></ul>"
                 },
                 "name": "Alex Tan",
                 "gender": "Unknown",
-                "confidence": "50",
+                "reasons": "Although Alex is more often associated with men, it can also be a female name. There is not enough other information to determine the gender of this source.",
                 "role": "Defence lawyer",
                 "linkedin": "no",
                 "quotes": "<ul><li>'My client is innocent, and we will shortly provide new evidence that will prove it,' her lawyer Alex Tan said.</li></ul>"
@@ -111,7 +111,7 @@ app.post('/detect', async (req, res) => {
             // Process each individual's name, gender, and role separately
             let name = individual.name;
             let gender = individual.gender;
-            let confidence = individual.confidence;
+            let reasons = individual.reasons;
             let role = individual.role;
             let linkedin = individual.linkedin;
             let quotes = individual.quotes;
@@ -119,7 +119,7 @@ app.post('/detect', async (req, res) => {
             perspectives_data.push({
                 name: name,
                 gender: gender,
-                confidence: confidence,
+                reasons: reasons,
                 role: role,
                 linkedin: linkedin,
                 quotes: quotes
@@ -163,7 +163,7 @@ app.post('/scrape', async (req, res) => {
             for (let item of items) {
                 let heading = (item.pagemap.metatags[0]["twitter:title"]).replace('| LinkedIn', '');
                     heading = heading.replace('| Professional Profile', '');
-                    heading = heading.replace(/Dr\.?\s+/i, ''); // Removing 'Dr' or 'Dr.' honourific which the Genderize API classifies as male
+                    heading = heading.replace(/Dr\.?\s+/i, ''); // Removing 'Dr' or 'Dr.' honorific which the Genderize API classifies as male
                 let name = heading;
                 let title = "";
                 let company = "";
