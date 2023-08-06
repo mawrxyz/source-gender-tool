@@ -58,7 +58,7 @@ app.post('/detect', async (req, res) => {
         const response = await openai.createChatCompletion({
             model: "gpt-4",
             messages: [
-                {role: "system", content: `You will be provided with a block of text. Your first task is to identify the location that the story is situated. Your second task will be to extract the names of individuals who are quoted as saying something in the text, their gender, and their connection to the subject of the story or the reason for their inclusion in the story. 
+                {role: "system", content: `You will be provided with a block of text. Your first task is to identify the location that the story is situated, if it is available (if not, return {location: null} as the first item in the response array). Your second task will be to extract the names of individuals who are quoted as saying something in the text, their gender, and their connection to the subject of the story or the reason for their inclusion in the story. 
                 
                 **IMPORTANT: Only include individuals who are providing supplementary comments or perspectives who could be replaced by others of similar background, experiences or expertise. Exclude individuals who are the main subject(s) of the news article. Also, exclude individuals who are only mentioned but do not provide quotes.**
 
