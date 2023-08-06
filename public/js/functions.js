@@ -258,13 +258,36 @@ function drawChart(genderData) {
         });
 }
 
-function jobSuggestions(location, majorityJobs, minorityGender, jobContentsMap) {
+async function jobSuggestions(location, majorityJobs, minorityGender, jobContentsMap) {
     const modal = document.getElementById('myModal');
     const modalBody = document.getElementById('modal_body');
     const closeModal = document.getElementsByClassName('close')[0];
-    const ul = document.createElement('ul');
+    const ul = document.getElementById('job_links_ul');
+    ul.innerHTML = '';
 
     for (let job of majorityJobs) {
+
+        if (!jobContentsMap.has(job)) {
+            const scrapeResponse = await fetch('/scrape', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ location: location, job_title: encodeURIComponent(job), minority_gender: minorityGender })
+            });
+
+            if (scrapeResponse.ok) {
+                const html = await scrapeResponse.text();
+                // If there are no results, don't generate a link for this job.
+                if (html.trim().length === 0) {
+                    continue;
+                }
+                // Save the fetched HTML in the map for future use.
+                jobContentsMap.set(job, html);
+            } else {
+                console.error(`Error scraping job "${job}": ${scrapeResponse.status} ${scrapeResponse.statusText}`);
+                continue;
+            }
+        }
+
         const li = document.createElement('li');
         const jobLink = document.createElement('a');
         jobLink.href = '#';
@@ -273,38 +296,9 @@ function jobSuggestions(location, majorityJobs, minorityGender, jobContentsMap) 
         jobLink.style.color = "#CD0010";
         jobLink.style.cursor = "pointer";
         jobLink.addEventListener('click', (event) => {
-            loadingSpinner.style.display = 'block'; // Show loading gif
             event.preventDefault();
-            // If the results for that role are already in the map, use it
-            if (jobContentsMap.has(job)) {
-                modalBody.innerHTML = jobContentsMap.get(job);
-                loadingSpinner.style.display = 'none'; // Hide loading gif
-                modal.style.display = 'block';  // Show the modal
-            } else {
-                // Otherwise, fetch it
-                fetch('/scrape', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ location: location, job_title: encodeURIComponent(job), minority_gender: minorityGender })
-                }).then((response) => {
-                    if (response.ok) {
-                        return response.text();
-                    } else {
-                        throw new Error('Error: ' + response.status + ' ' + response.statusText);
-                    }
-                }).then((html) => {         
-                    jobContentsMap.set(job, html); // Save the fetched HTML in the map for future use
-                    modalBody.innerHTML = html;  // Populate modal with the HTML
-                    loadingSpinner.style.display = 'none'; // Hide loading gif
-                    modal.style.display = 'block';  // Show the modal
-                }).catch((error) => {
-                    const errorPara = document.createElement('p');
-                    errorPara.textContent = `${error.message}. Please try again.`;
-                    jobLinksDiv.appendChild(errorPara);
-                    errorPara.style.backgroundColor = '#F4D4D5';
-                    loadingSpinner.style.display = 'none'; // Hide loading gif even if there is an error
-                });
-            }
+            modalBody.innerHTML = jobContentsMap.get(job);
+            modal.style.display = 'block';
         });
         li.appendChild(jobLink);
         ul.appendChild(li);
@@ -408,13 +402,16 @@ function displayResults(response) {
 
         if (majorityGender != null) {
                 
-            const majorityJobs = [];
+            let majorityJobs = [];
 
             for (let person of data) {
                 if (person.gender === majorityGender && person.linkedin === 'yes') {
                     majorityJobs.push(person.role);
                 }
             }
+
+            majorityJobs = [...new Set(majorityJobs)];
+
             if (majorityJobs.length != 0) {
 
                 if (majorityGender === 'Male') {
@@ -422,7 +419,11 @@ function displayResults(response) {
                 } else if (majorityGender === 'Female') {
                     jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${maleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story. Research shows that on average, men are quoted about <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845988/" target="_blank">three times more than women</a> in news articles. However, women <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8242240/" target="_blank">tend to be</a> quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. Unless the story is specifically about women or men, it is often desirable to try to get a good balance of voices.</p>`
                 }
-                jobLinksDiv.innerHTML += `<p>You might want to consider looking for more ${minorityGender.toLowerCase()} sources. This story appears to be about or set in ${location}. Click on each link below to look for LinkedIn profiles of ${minorityGender.toLowerCase()} sources that might have background and experience in ${location} and professional roles similar to ${majorityGender.toLowerCase()} sources quoted:</p>`;                
+                jobLinksDiv.innerHTML += `<p>You might want to consider looking for more ${minorityGender.toLowerCase()} sources. This story appears to be about or set in ${location}. Click on each link below to look for LinkedIn profiles of ${minorityGender.toLowerCase()} sources that might have background and experience in ${location} and professional roles similar to ${majorityGender.toLowerCase()} sources quoted:</p>`;       
+                
+                ul = document.createElement('ul');
+                ul.id = 'job_links_ul';
+                jobLinksDiv.appendChild(ul);
             } else {
                 jobLinksDiv.innerHTML = `<p>The sources quoted in this text may play a personal role in the story and therefore be hard to replace with other sources. Nonetheless, you might want to consider including more ${minorityGender.toLowerCase()} perspectives.</p>`
             }
