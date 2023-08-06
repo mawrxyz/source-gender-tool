@@ -158,7 +158,7 @@ app.post('/scrape', async (req, res) => {
     } else if (minority_gender === 'male') {
         url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=${job_title}%20AND%20${location}%20(he%20OR%20him)&num=10`;
     } else {
-        url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=${job_title}%20${location}&num=10`;
+        url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=${job_title}%20AND%20${location}&num=10`;
     }
 
     const getData = async () => {

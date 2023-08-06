@@ -36,6 +36,16 @@ h2 {
   color: #3a3030;
 }
 
+p a {
+  color: #CD0010; 
+  text-decoration: none;
+  cursor: pointer;
+}
+
+p a:hover {
+  color: #990000;
+}
+
 .sidepanel  {
   height: 100%;
   max-height: calc(100vh - 60px); 
