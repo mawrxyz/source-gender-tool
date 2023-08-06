@@ -150,12 +150,21 @@ function analyseText(article_text) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ article_text: article_text })
-    });
-}
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json(); // or whatever you want to do with the response
+    })
+    .catch(error => {
 
-function processResponse(response) {
-    if (!response.ok) { throw response }
-    return response.json();
+        console.log('Error: ', error);
+        // Display the error message in resultsStatementDiv
+        resultsStatementDiv.innerHTML = `<p>Oops, something went wrong! Please make sure you have entered text that includes some quotes from individuals and try again.</p>`;
+        resultsStatementDiv.style.display = 'block'; // ensure the div is visible
+        resultsStatementDiv.style.backgroundColor = '#F4D4D5'; // Change the color to indicate an error;
+    });
 }
 
 function drawChart(genderData) {
@@ -288,6 +297,12 @@ function jobSuggestions(location, majorityJobs, minorityGender, jobContentsMap) 
                     modalBody.innerHTML = html;  // Populate modal with the HTML
                     loadingSpinner.style.display = 'none'; // Hide loading gif
                     modal.style.display = 'block';  // Show the modal
+                }).catch((error) => {
+                    const errorPara = document.createElement('p');
+                    errorPara.textContent = `Failed to fetch data: ${error.message}`;
+                    jobLinksDiv.appendChild(errorPara);
+                    errorPara.style.backgroundColor = '#F4D4D5';
+                    loadingSpinner.style.display = 'none'; // Hide loading gif even if there is an error
                 });
             }
         });
@@ -398,7 +413,7 @@ function displayResults(response) {
                 } else if (majorityGender === 'Female') {
                     jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${maleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story. Research shows that on average, men are quoted about <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845988/" target="_blank">three times more than women</a> in news articles. However, women <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8242240/" target="_blank">tend to be</a> quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. Unless the story is specifically about women or men, it is often desirable to try to get a good balance of voices.</p>`
                 }
-                jobLinksDiv.innerHTML += `<p>You might want to consider looking for more ${minorityGender.toLowerCase()} sources. This story appears to be about or set in ${location}. Click on each link below to look for LinkedIn profiles of some ${minorityGender.toLowerCase()} sources that might have background and experience in ${location} and professional roles similar to ${majorityGender.toLowerCase()} sources quoted:</p>`;                
+                jobLinksDiv.innerHTML += `<p>You might want to consider looking for more ${minorityGender.toLowerCase()} sources. This story appears to be about or set in ${location}. Click on each link below to look for LinkedIn profiles of ${minorityGender.toLowerCase()} sources that might have background and experience in ${location} and professional roles similar to ${majorityGender.toLowerCase()} sources quoted:</p>`;                
             } else {
                 jobLinksDiv.innerHTML = `<p>The sources quoted in this text may play a personal role in the story and therefore be hard to replace with other sources. Nonetheless, you might want to consider including more ${minorityGender.toLowerCase()} perspectives.</p>`
             }
@@ -433,19 +448,13 @@ function analyseArticle() {
         return;
     }
     analyseText(article_text)
-        .then(processResponse)
         .then(displayResults)
         .catch(error => {
             console.error('Error:', error);
-            
             // Hide the loading spinner and enable the analyse button in case of an error
             loadingSpinner.style.display = 'none';
             analyseButton.disabled = false;
 
-            // Display the error message in resultsStatementDiv
-            resultsStatementDiv.innerHTML = `<p>Oops, something went wrong! Please make sure you have entered text that includes some quotes from individuals and try again.</p>`;
-            resultsStatementDiv.style.display = 'block'; // ensure the div is visible
-            resultsStatementDiv.style.backgroundColor = '#F4D4D5'; // Change the color to indicate an error
         });
 }
 
