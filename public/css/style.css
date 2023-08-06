@@ -14,6 +14,101 @@ body {
   overflow: hidden;
 }
 
+h1 {
+  font-size: 2.5em;
+  line-height: 1.2;
+  margin-bottom: 30px;
+  color: #212121;
+}
+
+h1 {
+  font-family: "Roboto Slab", "Times New Roman", "Georgia", serif;
+}
+
+h1, h2, form {
+  text-align: center;
+}
+
+h2 {
+  font-size: 1.8em;
+  font-weight: bold;
+  font-variant: small-caps;
+  color: #3a3030;
+}
+
+.sidepanel  {
+  height: 100%;
+  max-height: calc(100vh - 60px); 
+  width: 28%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #111;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transform: translateX(-100%);
+  transition: transform 0.5s;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  color: white;
+}
+
+.sidepanel h2 {
+  color: white;
+}
+
+.sidepanel p {
+  padding: 10px 20px 0px 20px;
+}
+
+.sidepanel a {
+  text-decoration: none;
+  color: #aaa;
+}
+
+.closebtn a {
+  padding: 8px 8px 8px 32px;
+  font-size: 25px;
+  display: block;
+  transition: 0.3s;
+}
+
+.sidepanel .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+}
+
+.sidepanel a:hover, .sidepanel a:focus {
+  color: white;
+}
+
+#aboutButton {
+  writing-mode: vertical-rl;
+  text-orientation: sideways;
+  background-color: #CD0010;
+  color: white;
+  font-variant: small-caps;
+  border: none;
+  border-radius: 0px 5px 5px 0px;
+  position: fixed;
+  top: 18%;
+  left: 0;
+  z-index: 2;
+  transform: translateY(-50%);
+  transform-origin: top left;
+  padding: 15px 10px;
+  font-size: 1.8em;
+  cursor: pointer;
+  transition: 0.5s;
+}
+
+#aboutButton:hover {
+  background-color: #990000;
+}
+
 #main_container {
   display: flex;
   align-items: center;
@@ -40,28 +135,6 @@ body {
   padding: 20px 10px;
   max-height: calc(100vh - 200px);
   overflow: auto; /* Scroll-bar */
-}
-
-h1 {
-  font-size: 2.5em;
-  line-height: 1.2;
-  margin-bottom: 30px;
-  color: #212121;
-}
-
-h1 {
-  font-family: "Roboto Slab", "Times New Roman", "Georgia", serif;
-}
-
-h1, h2, form {
-  text-align: center;
-}
-
-h2 {
-  font-size: 1.8em;
-  font-weight: bold;
-  font-variant: small-caps;
-  color: #3a3030;
 }
 
 #job_links {
@@ -165,6 +238,14 @@ textarea {
   font-size: 1em;
   font-weight: 500;
   font-variant: small-caps;
+  display: block;
+  margin: 10px auto;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 #analyse-button {
@@ -175,16 +256,6 @@ textarea {
   background-color: #181414;
 }
 
-button {
-  display: block;
-  margin: 10px auto;
-  padding: 10px 20px;
-  font-size: 16px;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
 #analyse-button:disabled, #reset-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
@@ -320,4 +391,124 @@ table td {
   border: 0px;
   border-radius: 8px;
   pointer-events: none;
+}
+
+@media screen and (max-width: 992px) {
+
+  body {
+    font-size: 0.8em;
+  }
+
+  h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: 1.5em;
+  }
+
+  #main_container {
+    height: calc(100vh - 20px); 
+  }
+
+  .sidepanel  {
+    width: 50%;
+  }
+
+  #aboutButton {
+    top: 10%;
+    font-size: 1.5em;
+  }
+
+  #content {
+    flex-direction: column;
+  }
+
+  #results, #text_form {
+    width: 100%;
+    height: 50%;
+  }
+
+  #text_form {
+    border-right: none;
+    border-bottom: 1px solid #ccc;
+  }
+
+  #form_container {
+    max-height: calc(50vh - 150px);
+  }
+
+  .modal-content {
+    width: 90%; 
+    max-height: calc(80vh - 200px);
+  }
+
+}
+
+@media screen and (max-width: 768px) {
+
+  body {
+    font-size: 0.7em;
+  }
+
+  h1 {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+  }
+
+  h2 {
+    font-size: 1.3em;
+  }
+
+  .sidepanel {
+    width: 100%;
+    height: 80vh;
+    left: 0;
+    top: -80vh;
+    transform: translateY(0);
+  }
+  
+  #aboutButton {
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 0px 0px 5px 5px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+
+  body {
+    font-size: 0.6em;
+  }
+
+  h1 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-size: 1.1em;
+  }
+
+  .sidepanel  {
+    width: 100%;
+  }
+
+  #aboutButton {
+    display: none;
+  }
+
+  #form-buttons {
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  #analyse-button, #reset-button {
+    padding: 5px 10px;
+  }
+
 }

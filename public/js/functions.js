@@ -5,6 +5,54 @@ const analyseButton = document.getElementById('analyse-button');
 const resultsStatementDiv = document.getElementById('results_statement');
 const jobLinksDiv = document.getElementById('job_links');
 
+// Toggle 'About' panel on click
+
+let isPanelOpen = false; // this variable will keep track of the panel state
+
+function toggleNav(event) {
+    event.stopPropagation();
+    const panel = document.getElementById("sidePanel");
+    const button = document.getElementById("aboutButton");
+
+    if (isPanelOpen) { // if the panel is open
+        if (window.innerWidth <= 768) { // check if screen size is small
+            panel.style.transform = "translateY(-100%)";
+        } else {
+            panel.style.transform = "translateX(-100%)";
+        }
+        button.style.left = "0";
+        isPanelOpen = false;
+    } else { // if the panel is closed
+        if (window.innerWidth <= 768) { // check if screen size is small
+            panel.style.transform = "translateY(0)";
+        } else {
+            panel.style.transform = "translateX(0%)";
+        }
+        button.style.left = window.innerWidth <= 768 ? "50%" : "28%";
+        isPanelOpen = true;
+    }
+}
+
+document.addEventListener('click', function(event) {
+    const panel = document.getElementById("sidePanel");
+    const button = document.getElementById("aboutButton");
+
+    if (isPanelOpen && event.target !== button) { // if the panel is open and the click target is not the button
+        if (window.innerWidth <= 768) { // check if screen size is small
+            panel.style.transform = "translateY(-100%)";
+        } else {
+            panel.style.transform = "translateX(-100%)";
+        }
+        button.style.left = "0";
+        isPanelOpen = false;
+    }
+});
+
+// Stop propagation of click events within the panel so it doesn't close when the panel is clicked
+document.getElementById('sidePanel').addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+  
 // Set the buttons as disabled if textbox is blank
 document.addEventListener("DOMContentLoaded", function() {
     const analyseButton = document.getElementById('analyse-button');
@@ -395,7 +443,7 @@ function analyseArticle() {
             analyseButton.disabled = false;
 
             // Display the error message in resultsStatementDiv
-            resultsStatementDiv.innerHTML = `<p>Oops, something went wrong! Please try again.</p>`;
+            resultsStatementDiv.innerHTML = `<p>Oops, something went wrong! Please make sure you have entered text that includes some quotes and try again.</p>`;
             resultsStatementDiv.style.display = 'block'; // ensure the div is visible
             resultsStatementDiv.style.backgroundColor = '#F4D4D5'; // Change the color to indicate an error
         });
