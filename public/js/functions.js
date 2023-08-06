@@ -299,7 +299,7 @@ function jobSuggestions(location, majorityJobs, minorityGender, jobContentsMap) 
                     modal.style.display = 'block';  // Show the modal
                 }).catch((error) => {
                     const errorPara = document.createElement('p');
-                    errorPara.textContent = `Failed to fetch data: ${error.message}`;
+                    errorPara.textContent = `${error.message}. Please try again.`;
                     jobLinksDiv.appendChild(errorPara);
                     errorPara.style.backgroundColor = '#F4D4D5';
                     loadingSpinner.style.display = 'none'; // Hide loading gif even if there is an error
