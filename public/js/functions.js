@@ -396,7 +396,7 @@ function displayResults(response) {
                 if (majorityGender === 'Male') {
                     jobLinksDiv.innerHTML = `<p>There ${maleCount === 1 ? 'was' : 'were'} <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> and <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> quoted as additional sources in your story. Research shows that on average, men are quoted about <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845988/" target="_blank">three times more than women</a> in news articles, reflecting an underrepresentation of women's voices in public discourse.</p>`
                 } else if (majorityGender === 'Female') {
-                    jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${maleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story. Prior research shows that women tend to be quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. To avoid reinforcing gendered stereotypes, it is desirable to try to get a good balance of voices.</p>`
+                    jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${maleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story. Research shows that on average, men are quoted about <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845988/" target="_blank">three times more than women</a> in news articles. However, women <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8242240/" target="_blank">tend to be</a> quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. Unless the story is specifically about women or men, it is often desirable to try to get a good balance of voices.</p>`
                 }
                 jobLinksDiv.innerHTML += `<p>You might want to consider looking for more ${minorityGender.toLowerCase()} sources. This story appears to be about or set in ${location}. Click on each link below to see the LinkedIn profiles of some ${minorityGender.toLowerCase()} sources that might have background and experience in ${location} and professional roles similar to ${majorityGender.toLowerCase()} sources quoted:</p>`;                
             } else {
@@ -443,7 +443,7 @@ function analyseArticle() {
             analyseButton.disabled = false;
 
             // Display the error message in resultsStatementDiv
-            resultsStatementDiv.innerHTML = `<p>Oops, something went wrong! Please make sure you have entered text that includes some quotes and try again.</p>`;
+            resultsStatementDiv.innerHTML = `<p>Oops, something went wrong! Please make sure you have entered text that includes some quotes from individuals and try again.</p>`;
             resultsStatementDiv.style.display = 'block'; // ensure the div is visible
             resultsStatementDiv.style.backgroundColor = '#F4D4D5'; // Change the color to indicate an error
         });
