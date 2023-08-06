@@ -41,7 +41,7 @@
             <strong>Error:</strong> <%= error %>
         </div>
     <% } else if(employees_data.length == 0){ %>
-            <p>No relevant results found.</p>
+            <p>Unfortunately, we were not able to find any relevant results. You may want to consider other voices that might be relevant in this story, or try using <a href="https://www.google.com/search?q=site%3Alinkedin.com%2Fin+<%= job_title %>+<%= location %>+%28he+OR+him%29" <% } %>target="_blank">this Google search</a> as a starting point.</p>
     <% } else {
         for(var i = 0; i < employees_data.length; i++) { 
             var name = cleanHTML(employees_data[i].name);
