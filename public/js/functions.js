@@ -364,7 +364,7 @@ function displayResults(response) {
         if (unknownCount > 0 && maleCount === 0 && femaleCount === 0)  {
             resultsStatementDiv.innerHTML = "We were not able to confidently determine the gender of any sources quoted.";
             resultsStatementDiv.style.backgroundColor = '#FFCD91';
-            jobLinksDiv.innerHTML = `<p>Gender is complex and not limited to "male" or "female". Furthermore, naming conventions vary by culture and individual preference, so it is not always possible to accurately determine the gender of a person by their name alone.</p><p>Nonetheless, research shows that on average, men are quoted about three times more than women in UK news articles, reflecting an underrepresentation of women's voices in public discourse. It is always good to try to get a good balance of voices in your story.</p>`;
+            jobLinksDiv.innerHTML = `<p>Gender is complex and not limited to "male" or "female". Furthermore, naming conventions vary by culture and individual preference, so it is not always possible to accurately determine the gender of a person by their name alone.</p><p>Nonetheless, research shows that on average, men are quoted about <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845988/" target="_blank">three times more than women</a> in news articles, reflecting an underrepresentation of women's voices in public discourse. It is always good to try to get a good balance of voices in your story.</p>`;
         } else {
             if (malePercentage > femalePercentage) {
                 minorityGender = 'Female';
@@ -398,7 +398,7 @@ function displayResults(response) {
                 } else if (majorityGender === 'Female') {
                     jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${maleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story. Prior research shows that women tend to be quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. To avoid reinforcing gendered stereotypes, it is desirable to try to get a good balance of voices.</p>`
                 }
-                jobLinksDiv.innerHTML += `<p>You might want to consider looking for more ${minorityGender.toLowerCase()} sources. This story appears to be about or set in ${location}. Click on each link to look for LinkedIn profiles of UK-based ${minorityGender.toLowerCase()} sources associated with this location that might fit the following professional roles:</p>`;                
+                jobLinksDiv.innerHTML += `<p>You might want to consider looking for more ${minorityGender.toLowerCase()} sources. This story appears to be about or set in ${location}. Click on each link below to see the LinkedIn profiles of some ${minorityGender.toLowerCase()} sources that might have background and experience in ${location} and/or professional roles similar to ${majorityGender.toLowerCase()} sources quoted:</p>`;                
             } else {
                 jobLinksDiv.innerHTML = `<p>The sources quoted in this text may play a personal role in the story and therefore be hard to replace with other sources. Nonetheless, you might want to consider including more ${minorityGender.toLowerCase()} perspectives.</p>`
             }
