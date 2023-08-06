@@ -201,7 +201,7 @@ function drawChart(genderData) {
         });
 }
 
-function jobSuggestions(majorityJobs, minorityGender, jobContentsMap) {
+function jobSuggestions(location, majorityJobs, minorityGender, jobContentsMap) {
     const modal = document.getElementById('myModal');
     const modalBody = document.getElementById('modal_body');
     const closeModal = document.getElementsByClassName('close')[0];
@@ -228,7 +228,7 @@ function jobSuggestions(majorityJobs, minorityGender, jobContentsMap) {
                 fetch('/scrape', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ job_title: encodeURIComponent(job), minority_gender: minorityGender })
+                    body: JSON.stringify({ location: location, job_title: encodeURIComponent(job), minority_gender: minorityGender })
                 }).then((response) => {
                     if (response.ok) {
                         return response.text();
@@ -287,8 +287,14 @@ function generateResultsTable(data) {
         });
 }
 
-function displayResults(data) {
-    console.log('display results data: ', data);
+function displayResults(response) {
+    console.log('display results data: ', response);
+
+    let location = response.location.location;
+    console.log('The location is: ', location);
+
+    let data = response.perspectives_data;
+    console.log('Perspectives data found: ', data);
 
     let totalSources = data.length;
 
@@ -344,13 +350,13 @@ function displayResults(data) {
                 } else if (majorityGender === 'Female') {
                     jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${maleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story. Prior research shows that women tend to be quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. To avoid reinforcing gendered stereotypes, it is desirable to try to get a good balance of voices.</p>`
                 }
-                jobLinksDiv.innerHTML += `<p>You might want to consider looking for alternative ${minorityGender.toLowerCase()} sources for some of the following professional roles (click on each role to see suggested UK-based leads):</p>`;                
+                jobLinksDiv.innerHTML += `<p>You might want to consider looking for more ${minorityGender.toLowerCase()} sources. This story appears to be about or set in ${location}. Click on each link to look for LinkedIn profiles of UK-based ${minorityGender.toLowerCase()} sources associated with this location that might fit the following professional roles:</p>`;                
             } else {
                 jobLinksDiv.innerHTML = `<p>The sources quoted in this text may play a personal role in the story and therefore be hard to replace with other sources. Nonetheless, you might want to consider including more ${minorityGender.toLowerCase()} perspectives.</p>`
             }
 
             const jobContentsMap = new Map(); // object to store results each time link clicked so it doesn't have to re-run if clicked again
-            jobSuggestions(majorityJobs, minorityGender, jobContentsMap);
+            jobSuggestions(location, majorityJobs, minorityGender, jobContentsMap);
         }
 
         let genderData = [
@@ -367,8 +373,7 @@ function displayResults(data) {
         resultsStatementDiv.style.display = 'block';
         jobLinksDiv.style.display = 'block';
         
-        // Hide the loading spinner and enable the analyse button again
-        analyseButton.disabled = false;
+        // Hide the loading spinner 
         loadingSpinner.style.display = 'none';
     }
 }
@@ -388,6 +393,11 @@ function analyseArticle() {
             // Hide the loading spinner and enable the analyse button in case of an error
             loadingSpinner.style.display = 'none';
             analyseButton.disabled = false;
+
+            // Display the error message in resultsStatementDiv
+            resultsStatementDiv.innerHTML = `<p>Oops, something went wrong! Please try again.</p>`;
+            resultsStatementDiv.style.display = 'block'; // ensure the div is visible
+            resultsStatementDiv.style.backgroundColor = '#F4D4D5'; // Change the color to indicate an error
         });
 }
 

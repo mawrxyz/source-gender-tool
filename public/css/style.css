@@ -96,6 +96,22 @@ h2 {
   text-decoration: none;
   color: #CD0010;
   cursor: pointer;
+}
+
+#flex-container {
+  display: flex;
+  justify-content: center;
+}
+
+#redirect_google {
+  display: inline-block;
+  background-color: #F5F5F5;
+  padding: 5px;
+  margin: 0px auto;
+  font-size: smaller;
+}
+
+.profile_link {
   font-size: larger;
 }
 

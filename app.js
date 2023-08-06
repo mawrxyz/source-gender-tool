@@ -52,12 +52,13 @@ app.post('/detect', async (req, res) => {
     // Obtain the text to analyze from the request body
     let article_text = req.body.article_text;
     
+    let location = null;
     let perspectives_data = [];
     try {
         const response = await openai.createChatCompletion({
             model: "gpt-4",
             messages: [
-                {role: "system", content: `You will be provided with a block of text, and your task will be to extract the names of individuals who are quoted as saying something in the text, their gender, and their connection to the subject of the story or the reason for their inclusion in the story. 
+                {role: "system", content: `You will be provided with a block of text. Your first task is to identify the location that the story is situated. Your second task will be to extract the names of individuals who are quoted as saying something in the text, their gender, and their connection to the subject of the story or the reason for their inclusion in the story. 
                 
                 **IMPORTANT: Only include individuals who are providing supplementary comments or perspectives who could be replaced by others of similar background, experiences or expertise. Exclude individuals who are the main subject(s) of the news article. Also, exclude individuals who are only mentioned but do not provide quotes.**
 
@@ -69,8 +70,9 @@ app.post('/detect', async (req, res) => {
 
                 Extract the quotes that are used, with each line containing a direct or indirect quote presented as a list item with the exact wording used in the text. There must be at least one quote for each individual included. Otherwise, omit that individual. 
                 
-                Please return your response as an array of JavaScript objects in British English, with each object representing an individual. For example:
+                Please return your response as an array of JavaScript objects using British spelling, with each object representing an individual. For example:
                 [
+                {"location": "Cardiff"},
                 {
                 "name": "Jane Doe",
                 "gender": "Female",
@@ -111,8 +113,10 @@ app.post('/detect', async (req, res) => {
         console.log('Response data: ', response.data);
         console.log('Message content:', response.data.choices[0].message);
 
-        // Parse the response from GPT-4 into a list of dictionaries
-        let quotedIndividuals = JSON.parse(response.data.choices[0].message.content);
+        // Parse the response from GPT-4 into location and quoted individuals data
+        let data = JSON.parse(response.data.choices[0].message.content);
+        location = data[0];
+        let quotedIndividuals = data.slice(1);
 
         for (let individual of quotedIndividuals) {
             // Process each individual's name, gender, and role separately
@@ -137,23 +141,24 @@ app.post('/detect', async (req, res) => {
         console.log(e);
     }
 
-    console.log('Perspectives data: ', perspectives_data);
-    res.json(perspectives_data);
+    console.log('Location: ', location, '/nPerspectives data: ', perspectives_data);
+    res.json({perspectives_data, location});
 });
 
 app.post('/scrape', async (req, res) => {
 
+    let location = req.body.location;
     let job_title = req.body.job_title;
     let minority_gender = req.body.minority_gender.toLowerCase();
 
     let url;
 
     if (minority_gender === 'female') {
-        url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=site:uk.linkedin.com/in%20${job_title}%20(she%20OR%20her)&num=10`;
+        url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=${job_title}%20${location}%20(she%20OR%20her)&num=10`;
     } else if (minority_gender === 'male') {
-        url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=site:uk.linkedin.com/in%20${job_title}%20(he%20OR%20him)&num=10`;
+        url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=${job_title}%20${location}%20(he%20OR%20him)&num=10`;
     } else {
-        url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=site:uk.linkedin.com/in%20${job_title}&num=10`;
+        url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=${job_title}%20${location}&num=10`;
     }
 
     const getData = async () => {
@@ -268,7 +273,7 @@ app.post('/scrape', async (req, res) => {
 
     let employees_data = await getData();
 
-    res.render("results", { employees_data: employees_data, job_title: job_title, minority_gender: minority_gender });
+    res.render("results", { location: location, employees_data: employees_data, job_title: job_title, minority_gender: minority_gender });
 });
 
 const port = 5000;
