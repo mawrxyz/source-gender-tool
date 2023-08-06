@@ -19,7 +19,7 @@
     }
     %>
 
-    <h1><% if (minority_gender === "female") { %> Women <% } else { %> Men <% } %> who might fit the role of '<%= cleanHTML(job_title.toLowerCase()) %>'</h1>
+    <h2><% if (minority_gender === "female") { %> Women <% } else { %> Men <% } %> who might fit the role of '<%= cleanHTML(job_title.toLowerCase()) %>'</h2>
 
     <% if (typeof error !== 'undefined') { %>
         <div>

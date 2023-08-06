@@ -87,6 +87,13 @@ app.post('/detect', async (req, res) => {
                 "linkedin": "no",
                 "quotes": "<ul><li>Cardiff resident Robin Doe said he largely supported the city's policies regarding sustainable energy.</li></ul>"
                 },
+                "name": "Unnamed spokesman",
+                "gender": "Male",
+                "reasons": "The term "spokesman" tends to indicate a spokesperson of male gender.",
+                "role": "Spokesperson for the Welsh government",
+                "linkedin": "yes",
+                "quotes": "<ul><li>'We are looking into the matter,' a spokesman for the Welsh government said.</li></ul>"
+                },
                 "name": "Alex Tan",
                 "gender": "Unknown",
                 "reasons": "Although Alex is more often associated with men, it can also be a female name. "They" as a singular pronoun is often used by nonbinary people.",
@@ -104,7 +111,7 @@ app.post('/detect', async (req, res) => {
         console.log('Response data: ', response.data);
         console.log('Message content:', response.data.choices[0].message);
 
-        // Parse the response from GPT-3 into a list of dictionaries
+        // Parse the response from GPT-4 into a list of dictionaries
         let quotedIndividuals = JSON.parse(response.data.choices[0].message.content);
 
         for (let individual of quotedIndividuals) {
