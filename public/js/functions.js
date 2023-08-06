@@ -210,7 +210,7 @@ function drawChart(genderData) {
     // Define the colors for each category
     let color = d3.scaleOrdinal()
         .domain(genderData.map(d => d.category))
-        .range(["#1f77b4", "#ff7f0e", "#2ca02c"]);
+        .range(["#733381", "#F58024", "#589C48"]);
 
     // Tooltip for percentages
     let tooltip = d3.select("#chart").append("div")
