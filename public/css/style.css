@@ -101,16 +101,16 @@ p a:hover {
   background-color: #CD0010;
   color: white;
   font-variant: small-caps;
+  font-size: 1.5em;
   border: none;
   border-radius: 0px 5px 5px 0px;
   position: fixed;
-  top: 18%;
+  top: 15%;
   left: 0;
   z-index: 2;
   transform: translateY(-50%);
   transform-origin: top left;
   padding: 15px 10px;
-  font-size: 1.8em;
   cursor: pointer;
   transition: 0.5s;
 }

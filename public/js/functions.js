@@ -155,7 +155,7 @@ function analyseText(article_text) {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return response.json(); // or whatever you want to do with the response
+        return response.json(); 
     })
     .catch(error => {
 
@@ -353,10 +353,11 @@ function generateResultsTable(data) {
 function displayResults(response) {
     console.log('display results data: ', response);
 
-    if (response.location != null) {
-        let location = response.location.location;
+    let location; 
+    if (response.location.location != null) {
+        location = response.location.location;
     } else {
-        let location = 'unknown';
+        location = 'unknown';
     }
 
     console.log('The location is: ', location);

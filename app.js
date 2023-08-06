@@ -54,6 +54,8 @@ app.post('/detect', async (req, res) => {
     
     let location = null;
     let perspectives_data = [];
+    let error = null; 
+    let data; 
     try {
         const response = await openai.createChatCompletion({
             model: "gpt-4",
@@ -71,8 +73,7 @@ app.post('/detect', async (req, res) => {
                 Extract the quotes that are used, with each line containing a direct or indirect quote presented as a list item with the exact wording used in the text. There must be at least one quote for each individual included. Otherwise, omit that individual. 
                 
                 Please return your response as an array of JavaScript objects using British spelling, with each object representing an individual. For example:
-                [
-                {"location": "Cardiff"},
+                [{"location": "Cardiff"},
                 {
                 "name": "Jane Doe",
                 "gender": "Female",
@@ -102,8 +103,7 @@ app.post('/detect', async (req, res) => {
                 "role": "Defence lawyer",
                 "linkedin": "no",
                 "quotes": "<ul><li>'My client is innocent, and we will shortly provide new evidence that will prove it,' her lawyer Alex Tan said. They added that the accused looked forward to seeing her family again.</li></ul>"
-                }
-                ]`},
+                }]`},
                 {role: "user", content: article_text}
             ],
             temperature: 0,
@@ -114,7 +114,27 @@ app.post('/detect', async (req, res) => {
         console.log('Message content:', response.data.choices[0].message);
 
         // Parse the response from GPT-4 into location and quoted individuals data
-        let data = JSON.parse(response.data.choices[0].message.content);
+
+        try {
+            let assistantOutput = response.data.choices[0].message.content;
+
+            try {
+                data = JSON.parse(assistantOutput);
+            } catch (error) {
+                if (assistantOutput.charAt(0) !== '[') {
+                    assistantOutput = assistantOutput.slice(1, -1);
+                }
+        
+                // Split the remaining string into separate strings
+                let assistantOutputParts = assistantOutput.split('},\n{');
+        
+                // Add back the leading and trailing curly braces {} to each string and parse each string into an object
+                data = assistantOutputParts.map(part => JSON.parse('{' + part + '}'));
+            }
+        } catch (e) {
+            console.log(e);
+        }
+
         location = data[0];
         let quotedIndividuals = data.slice(1);
 
@@ -136,13 +156,12 @@ app.post('/detect', async (req, res) => {
                 quotes: quotes
             });
         }
-
     } catch (e) {
         console.log(e);
     }
 
     console.log('Location: ', location, '/nPerspectives data: ', perspectives_data);
-    res.json({perspectives_data, location});
+    res.json({perspectives_data, location, error});
 });
 
 app.post('/scrape', async (req, res) => {
