@@ -4,7 +4,6 @@
         <title>Results</title>
     </head>
 <body>
-    <h1>Top results:</h1>
     <% 
     function cleanHTML(input) {
         var output = input.replace(/&#(\d+);/g, function(match, dec) { return String.fromCharCode(dec); })
@@ -18,12 +17,17 @@
         output = output.replace(/<\/?[^>]+(>|$)/g, "");
         return output;
     }
+    %>
 
-    if(employees_data.length == 0){
-        %>
+    <h1><% if (minority_gender === "female") { %> Women <% } else { %> Men <% } %> who might fit the role of '<%= cleanHTML(job_title.toLowerCase()) %>'</h1>
+
+    <% if (typeof error !== 'undefined') { %>
+        <div>
+            <strong>Error:</strong> <%= error %>
+        </div>
+    <% } else if(employees_data.length == 0){ %>
             <p>No relevant results found.</p>
-        <%
-    } else {
+    <% } else {
         for(var i = 0; i < employees_data.length; i++) { 
             var name = cleanHTML(employees_data[i].name);
             var title = cleanHTML(employees_data[i].title);
@@ -33,16 +37,13 @@
             console.log(`Probability of ${name} being ${gender} = ${probability}`);
             var about = cleanHTML(employees_data[i].about);
         %>
-                <p>Name: <%= name %></p>
+                <p style="font-size: 1em"><a href="<%= employees_data[i].link %>"" target="blank"><%= name %></a></p>
                 <p>Title: <%= title %></p>
                 <p>Company/location: <%= company %></p>
-                <p>Gender detected: <%= gender %></p>
                 <p>About: <%= about %></p>
-                <p>Link: <a href="<%= employees_data[i].link %>"" target="blank"><%= employees_data[i].link %></a></p>
                 <hr>
         <% }
-    }
-    %>
+    } %>
 
     
 </body>

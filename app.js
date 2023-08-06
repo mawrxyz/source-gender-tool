@@ -65,7 +65,7 @@ app.post('/detect', async (req, res) => {
                 
                 If the role is a professional one, phrase the result such that someone with a similar background or expertise could be found by searching for the role on a job site like LinkedIn, and put "yes" as the value for the key "linkedin". Otherwise, if the role is highly personal such as the relative of the main subject or a resident of a city, put "no" for the key "linkedin". 
                 
-                State the individual's gender based on pronouns or honorifics used in the text. If no clear indication is given, make an educated guess based on the name or other contextual clues. If it is ambiguous, such as if the name is gender neutral and there are no pronouns or honorifics used, state the gender as "unknown". Briefly provide reasons for your determination of the person's gender.
+                State the individual's gender based on pronouns or honorifics used in reference to that individual (NOT anyone else they mention in their quote). If no clear indication is given, make an educated guess based on the name or other contextual clues. If it is ambiguous, such as if the name is gender neutral, the pronoun "they" is used to reference an individual, or there are no pronouns or honorifics used, state the gender as "unknown". Briefly provide reasons for your determination of the person's gender.
 
                 Extract the quotes that are used, with each line containing a direct or indirect quote presented as a list item with the exact wording used in the text. There must be at least one quote for each individual included. Otherwise, omit that individual. 
                 
@@ -74,10 +74,10 @@ app.post('/detect', async (req, res) => {
                 {
                 "name": "Jane Doe",
                 "gender": "Female",
-                "reasons": "Jane is a common female name. The honorific "Ms" and the pronoun "she" are also used.",
+                "reasons": "Jane is a common female name. The honorific "Ms" and the pronoun "she" are also used to refer to Jane.",
                 "role": "Senior political analyst at a think tank",
                 "linkedin": "yes",
-                "quotes": "<ul><li>Jane Doe, a senior political analyst at US think tank Think Politics, said this was a 'highly concerning' situation.</li><li>'It is hard to say which way this will go.'</li></ul>"
+                "quotes": "<ul><li>Jane Doe, a senior political analyst at US think tank Think Politics, said this was a 'highly concerning' situation.</li><li>'It is hard to say which way this will go,' she added.</li></ul>"
                 },
                 {
                 "name": "Robin Doe",
@@ -137,7 +137,7 @@ app.post('/detect', async (req, res) => {
 app.post('/scrape', async (req, res) => {
 
     let job_title = req.body.job_title;
-    let minority_gender = req.body.minority_gender;
+    let minority_gender = req.body.minority_gender.toLowerCase();
 
     let url;
 
@@ -253,6 +253,7 @@ app.post('/scrape', async (req, res) => {
             };
         } catch (e) {
             console.log(e);
+            return res.status(500).render('results', { error: e.message });
         }
         console.log('Employees data: ', employees_data);
         return employees_data;
@@ -260,7 +261,7 @@ app.post('/scrape', async (req, res) => {
 
     let employees_data = await getData();
 
-    res.render("results", { employees_data: employees_data });
+    res.render("results", { employees_data: employees_data, job_title: job_title, minority_gender: minority_gender });
 });
 
 const port = 5000;

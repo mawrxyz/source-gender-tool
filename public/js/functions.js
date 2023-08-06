@@ -201,47 +201,10 @@ function drawChart(genderData) {
         });
 }
 
-function countGender(data) {
-
-    // Count the gender distribution
-    let maleCount = 0;
-    let femaleCount = 0;
-    let unknownCount = 0;
-
-    for (let i = 0; i < data.length; i++) {
-        let gender = data[i].gender;
-
-        if (gender === 'Male') {
-            maleCount++;
-        } else if (gender === 'Female') {
-            femaleCount++;
-        } else {
-            unknownCount++;
-        }
-    }
-
-    let totalCount = maleCount + femaleCount + unknownCount;
-
-    let malePercentage = (maleCount / totalCount) * 100;
-    let femalePercentage = (femaleCount / totalCount) * 100;
-    let unknownPercentage = (unknownCount / totalCount) * 100;
-
-    let genderData = [
-        {category: 'Men', count: maleCount, percentage: malePercentage},
-        {category: 'Women', count: femaleCount, percentage: femalePercentage},
-        {category: 'Others/unknown', count: unknownCount, percentage: unknownPercentage}
-    ];
-
-    drawChart(genderData);
-
-    return data;
-}
-
-function jobSuggestions(majorityJobs, minorityGender) {
+function jobSuggestions(majorityJobs, minorityGender, jobContentsMap) {
     const modal = document.getElementById('myModal');
     const modalBody = document.getElementById('modal_body');
     const closeModal = document.getElementsByClassName('close')[0];
-    const jobContentsMap = new Map(); // object to store results each time link clicked so it doesn't have to re-run if clicked again
     const ul = document.createElement('ul');
 
     for (let job of majorityJobs) {
@@ -269,6 +232,8 @@ function jobSuggestions(majorityJobs, minorityGender) {
                 }).then((response) => {
                     if (response.ok) {
                         return response.text();
+                    } else {
+                        throw new Error('Error: ' + response.status + ' ' + response.statusText);
                     }
                 }).then((html) => {         
                     jobContentsMap.set(job, html); // Save the fetched HTML in the map for future use
@@ -379,13 +344,22 @@ function displayResults(data) {
                 } else if (majorityGender === 'Female') {
                     jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${maleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story. Prior research shows that women tend to be quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. To avoid reinforcing gendered stereotypes, it is desirable to try to get a good balance of voices.</p>`
                 }
-                jobLinksDiv.innerHTML += `<p>You might want to consider looking for alternative ${minorityGender.toLowerCase()} sources for some of the following professional roles (click on each item to see suggested UK-based leads):</p>`;                
+                jobLinksDiv.innerHTML += `<p>You might want to consider looking for alternative ${minorityGender.toLowerCase()} sources for some of the following professional roles (click on each role to see suggested UK-based leads):</p>`;                
             } else {
-                jobLinksDiv.innerHTML = `<p>The sources quoted in this text may play a personal role in the story and therefore be hard to replace with other sources. Nontheless, you might want to consider including more ${minorityGender.toLowerCase()} perspectives.</p>`
+                jobLinksDiv.innerHTML = `<p>The sources quoted in this text may play a personal role in the story and therefore be hard to replace with other sources. Nonetheless, you might want to consider including more ${minorityGender.toLowerCase()} perspectives.</p>`
             }
 
-            jobSuggestions(majorityJobs, minorityGender);
+            const jobContentsMap = new Map(); // object to store results each time link clicked so it doesn't have to re-run if clicked again
+            jobSuggestions(majorityJobs, minorityGender, jobContentsMap);
         }
+
+        let genderData = [
+            {category: 'Men', count: maleCount, percentage: malePercentage},
+            {category: 'Women', count: femaleCount, percentage: femalePercentage},
+            {category: 'Others/unknown', count: unknownCount, percentage: unknownPercentage}
+        ];
+    
+        drawChart(genderData);
     
         generateResultsTable(data);
 
@@ -407,7 +381,6 @@ function analyseArticle() {
     }
     analyseText(article_text)
         .then(processResponse)
-        .then(countGender)
         .then(displayResults)
         .catch(error => {
             console.error('Error:', error);
