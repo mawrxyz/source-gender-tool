@@ -378,7 +378,10 @@ function displayResults(response) {
 
     if (totalSources === 0) {
         resultsStatementDiv.innerHTML = "There were no sources detected in the text, or the only sources quoted are the main newsmaker(s) or subject(s) of the story. If you think this is wrong, please click on the 'Reset' button and try again.";
+        resultsStatementDiv.style.display = 'block';
         resultsStatementDiv.style.backgroundColor = "#F4D4D5";
+        // Hide the loading spinner 
+        loadingSpinner.style.display = 'none';
     } else {
 
         if (unknownCount > 0 && maleCount === 0 && femaleCount === 0)  {
