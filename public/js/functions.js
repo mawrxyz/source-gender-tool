@@ -353,7 +353,12 @@ function generateResultsTable(data) {
 function displayResults(response) {
     console.log('display results data: ', response);
 
-    let location = response.location.location;
+    if (response.location != null) {
+        let location = response.location.location;
+    } else {
+        let location = 'unknown';
+    }
+
     console.log('The location is: ', location);
 
     let data = response.perspectives_data;
@@ -371,7 +376,7 @@ function displayResults(response) {
 
     let minorityGender, majorityGender;
 
-    if (unknownCount + maleCount + femaleCount === 0) {
+    if (totalSources === 0) {
         resultsStatementDiv.innerHTML = "There were no sources detected in the text, or the only sources quoted are the main newsmaker(s) or subject(s) of the story. If you think this is wrong, please click on the 'Reset' button and try again.";
         resultsStatementDiv.style.backgroundColor = "#F4D4D5";
     } else {
