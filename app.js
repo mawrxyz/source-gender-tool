@@ -119,6 +119,7 @@ app.post('/detect', async (req, res) => {
             let assistantOutput = response.data.choices[0].message.content;
 
             try {
+                console.log('assistantOutput: ', assistantOutput)
                 data = JSON.parse(assistantOutput);
             } catch (error) {
                 if (assistantOutput.charAt(0) !== '[') {
@@ -126,7 +127,7 @@ app.post('/detect', async (req, res) => {
                 }
         
                 // Split the remaining string into separate strings
-                let assistantOutputParts = assistantOutput.split('},\n{');
+                let assistantOutputParts = assistantOutput.split(/},\n\n?{/);
         
                 // Add back the leading and trailing curly braces {} to each string and parse each string into an object
                 data = assistantOutputParts.map(part => JSON.parse('{' + part + '}'));
