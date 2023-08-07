@@ -9,11 +9,16 @@ const { Configuration, OpenAIApi } = require("openai");
 
 // Set up password authentication
 
-app.use(basicAuth({
-    users: { [process.env.AUTH_USERNAME]: process.env.AUTH_PASSWORD },
-    challenge: true
-}))
+let users = {
+    'process.env.ADMIN_USERNAME': 'process.env.ADMIN_PASSWORD',
+    'process.env.TEST_USERNAME': 'process.env.TEST_PASSWORD',
+}
 
+app.use(basicAuth({
+    users: users,
+    challenge: true,
+    unauthorizedResponse: 'Unauthorised'
+}))
 
 // Configure app
 
