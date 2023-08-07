@@ -258,59 +258,90 @@ function drawChart(genderData) {
         });
 }
 
+let isRunning = false;
+
 async function jobSuggestions(location, majorityJobs, majorityGender, minorityGender, jobContentsMap) {
+    if (isRunning) return;
+    isRunning = true;
+    console.log("Job suggestions being generated...")
     const modal = document.getElementById('myModal');
     const modalBody = document.getElementById('modal_body');
     const closeModal = document.getElementsByClassName('close')[0];
     const ul = document.getElementById('job_links_ul');
     ul.innerHTML = '';
+    const existingSuggestion = document.getElementById('job-suggestions-message');
+    if (existingSuggestion) existingSuggestion.remove();
 
-    for (let job of majorityJobs) {
+    // Add temporary "Generating job suggestions..." message
+    const tempMessage = document.createElement('p');
+    tempMessage.id = 'temp-message';  // So you can reference and remove it later
+    tempMessage.className = 'type-animation';  // Attach the CSS class for animation
+    tempMessage.textContent = "Generating job suggestions...";  // The text that appears as if it's being typed
+    tempMessage.style.width = "20em";  // Width that fits the text content
+    jobLinksDiv.appendChild(tempMessage);
 
-        if (!jobContentsMap.has(job)) {
-            const scrapeResponse = await fetch('/scrape', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ location: location, job_title: encodeURIComponent(job), minority_gender: minorityGender })
-            });
+    try {
+        for (let job of majorityJobs) {
 
-            if (scrapeResponse.ok) {
-                const html = await scrapeResponse.text();
-                // If there are no results, don't generate a link for this job.
-                if (html.trim().length === 0) {
+            if (!jobContentsMap.has(job)) {
+                const scrapeResponse = await fetch('/scrape', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ location: location, job_title: encodeURIComponent(job), minority_gender: minorityGender })
+                });
+    
+                if (scrapeResponse.ok) {
+                    const html = await scrapeResponse.text();
+                    // If there are no results, don't generate a link for this job.
+                    if (html.trim().length === 0) {
+                        continue;
+                    }
+                    // Save the fetched HTML in the map for future use.
+                    jobContentsMap.set(job, html);
+                } else {
+                    console.error(`Error scraping job "${job}": ${scrapeResponse.status} ${scrapeResponse.statusText}`);
                     continue;
                 }
-                // Save the fetched HTML in the map for future use.
-                jobContentsMap.set(job, html);
-            } else {
-                console.error(`Error scraping job "${job}": ${scrapeResponse.status} ${scrapeResponse.statusText}`);
-                continue;
             }
-        }
-
-        const li = document.createElement('li');
-        const jobLink = document.createElement('a');
-        jobLink.href = '#';
-        jobLink.textContent = job;
-        jobLink.style.textDecoration = "none";
-        jobLink.style.color = "#CD0010";
-        jobLink.style.cursor = "pointer";
-        jobLink.addEventListener('click', (event) => {
-            event.preventDefault();
-            modalBody.innerHTML = jobContentsMap.get(job);
-            modal.style.display = 'block';
-        });
-        li.appendChild(jobLink);
-        ul.appendChild(li);
-    }
     
-    if (ul.children.length > 0) {
-        const job_suggestions = document.createElement('p');
-        job_suggestions.innerHTML = `You might want to consider looking for more ${minorityGender.toLowerCase()} sources. This story appears to be about or set in ${location}. Click on each link below to look for LinkedIn profiles of ${minorityGender.toLowerCase()} sources that might have background and experience in ${location} and professional roles similar to ${majorityGender.toLowerCase()} sources quoted:`;   
-        jobLinksDiv.appendChild(job_suggestions);
-    }
-
-    jobLinksDiv.appendChild(ul);
+            const li = document.createElement('li');
+            const jobLink = document.createElement('a');
+            jobLink.href = '#';
+            jobLink.textContent = job;
+            jobLink.style.textDecoration = "none";
+            jobLink.style.color = "#CD0010";
+            jobLink.style.cursor = "pointer";
+            jobLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                modalBody.innerHTML = jobContentsMap.get(job);
+                modal.style.display = 'block';
+            });
+            li.appendChild(jobLink);
+            console.log('Job items in ul before appending ', job, ": ", ul.children)
+            if (!Array.from(ul.children).some(li => li.textContent.trim() === job)) {
+                ul.appendChild(li);
+            }
+            console.log('Job items in ul after appending ', job, ": ", ul.children)
+        }
+        
+        if (ul.children.length > 0 && !document.getElementById('job-suggestions-message')) {
+            const job_suggestions = document.createElement('p');
+            job_suggestions.id = 'job-suggestions-message';  
+            job_suggestions.innerHTML = `You might want to consider looking for more ${minorityGender.toLowerCase()} sources. This story appears to be about or set in ${location}. Click on each link below to look for LinkedIn profiles of ${minorityGender.toLowerCase()} sources that might have background and experience in ${location} and professional roles similar to ${majorityGender.toLowerCase()} sources quoted:`;   
+            jobLinksDiv.appendChild(job_suggestions);
+        } else {
+            const no_suggestions= document.createElement('p');
+            no_suggestions.innerHTML = `The sources quoted in this text may play a personal or highly specific role in the story and therefore be hard to replace with other sources. Nonetheless, you might want to consider including more ${minorityGender.toLowerCase()} perspectives.`
+            jobLinksDiv.appendChild(no_suggestions);
+        }
+    
+        if (!jobLinksDiv.contains(ul)) {
+            jobLinksDiv.appendChild(ul);
+        }
+    } catch (error) {
+        console.error('Error in jobSuggestions:', error);
+     }
+    
 
     // When the user clicks on <span> (x), close the modal
     closeModal.onclick = function() {
@@ -322,6 +353,12 @@ async function jobSuggestions(location, majorityJobs, majorityGender, minorityGe
         if (event.target == modal) {
             modal.style.display = 'none';
         }
+    }
+    isRunning = false;
+
+    const messageToRemove = document.getElementById('temp-message');
+    if (messageToRemove) {
+        messageToRemove.remove();
     }
 }
 

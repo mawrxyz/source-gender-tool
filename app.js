@@ -165,33 +165,22 @@ app.post('/detect', async (req, res) => {
     res.json({perspectives_data, location, error});
 });
 
-app.post('/scrape', async (req, res) => {
-
-    let location = req.body.location;
-    let job_title = req.body.job_title;
-    let minority_gender = req.body.minority_gender.toLowerCase();
-
-    let url;
-
+function buildSearchURL(job_title, location, minority_gender, restricted = true) {
+    let base = `https://www.googleapis.com/customsearch/v1${restricted ? '/siterestrict' : ''}`;
+    let genderQuery = "";
     if (minority_gender === 'female') {
-        url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=${job_title}%20AND%20${location}%20(she%20OR%20her)&num=10`;
+        genderQuery = `%20(she%20OR%20her)`;
     } else if (minority_gender === 'male') {
-        url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=${job_title}%20AND%20${location}%20(he%20OR%20him)&num=10`;
-    } else {
-        url = `https://www.googleapis.com/customsearch/v1/siterestrict?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=${job_title}%20AND%20${location}&num=10`;
+        genderQuery = `%20(he%20OR%20him)`;
     }
+    return `${base}?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=${job_title}%20AND%20${location}${genderQuery}&num=10`;
+}
 
-    const getData = async () => {
-        let employees_data = [];
-        try {
-
-            const response = await unirest.get(url);
-            console.log("Profile response: ", response)
-
-            const items = response.body.items;
-            console.log("Profiles found: ", items);
-
-            let count = 0;
+async function processSearchResponse(response, job_title, minority_gender) {
+    let employees_data = [];
+    const items = response.body.items;
+    console.log("Profiles found: ", items);
+    let count = 0;
             for (let item of items) {
                 let heading = (item.pagemap.metatags[0]["twitter:title"]).replace('| LinkedIn', '');
                     heading = heading.replace('| Professional Profile', '');
@@ -282,9 +271,30 @@ app.post('/scrape', async (req, res) => {
                 if (count >= 5) {
                     break; //limit results to top 5
                 }
-            };
+            }
+            return employees_data;
+        }
+
+app.post('/scrape', async (req, res) => {
+
+    let location = req.body.location;
+    let job_title = req.body.job_title;
+    let minority_gender = req.body.minority_gender.toLowerCase();
+
+    const getData = async () => {
+        let employees_data = [];
+        try {
+            let url = buildSearchURL(job_title, location, minority_gender);
+            let response = await unirest.get(url);
+
+            if (response.status === 429) {
+                console.log("Switching to regular Google Custom Search API...");
+                url = buildSearchURL(job_title, location, minority_gender, false);
+                response = await unirest.get(url);
+            }
+            employees_data = await processSearchResponse(response, job_title, minority_gender);
         } catch (e) {
-            console.log(e);
+            console.log(e)
             return res.status(500).render('results', { error: e.message });
         }
         console.log('Employees data: ', employees_data);
