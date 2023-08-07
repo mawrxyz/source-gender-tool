@@ -1,4 +1,4 @@
-// Get elements
+// Get document elements
 const sourceTable = document.getElementById('source_table');
 const loadingSpinner = document.getElementById('loading-spinner');
 const analyseButton = document.getElementById('analyse-button');
@@ -7,7 +7,7 @@ const jobLinksDiv = document.getElementById('job_links');
 
 // Toggle 'About' panel on click
 
-let isPanelOpen = false; // this variable will keep track of the panel state
+let isPanelOpen = false; // variable to keep track of the panel state
 
 function toggleNav(event) {
     event.stopPropagation();
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function() {
     resetButton.disabled = !articleText.value.trim();
 });
 
-// Add an event listener to the textarea to enable/disable the buttons based on wether there is input text
+// Add an event listener to the textarea to enable/disable the buttons based on whether there is input text
 document.getElementById('article_text').addEventListener('input', function() {
         const analyseButton = document.getElementById('analyse-button');
         const resetButton = document.getElementById('reset-button');
@@ -74,7 +74,9 @@ document.getElementById('article_text').addEventListener('input', function() {
         resetButton.disabled = !this.value.trim();
 });
 
-function resetArticle() {
+function resetApp() {
+
+    console.log("Resetting app.");
     // Clear the text area
     document.getElementById('article_text').value = '';
 
@@ -119,6 +121,9 @@ function formatPercentage(num) {
 }
 
 function loadingAnalysis() {
+
+    console.log("Preparing to analyse text...");
+
     const elementsToClear = ['source_table', 'chart', 'results_statement', 'job_links'];
     for (const elementId of elementsToClear) {
         document.getElementById(elementId).innerHTML = '';
@@ -137,6 +142,9 @@ function loadingAnalysis() {
 }
 
 function getArticleText() {
+
+    console.log("Retrieving text from user input...");
+
     const article_text = document.getElementById('article_text').value;
     if (!article_text.trim()) {
         alert('Please enter some article text to analyse.');
@@ -146,6 +154,9 @@ function getArticleText() {
 }
 
 function analyseText(article_text) {
+
+    console.log("Analaysing text...");
+
     return fetch('/detect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -159,15 +170,17 @@ function analyseText(article_text) {
     })
     .catch(error => {
 
-        console.log('Error: ', error);
+        console.log('Error while analysing text: ', error);
         // Display the error message in resultsStatementDiv
         resultsStatementDiv.innerHTML = `<p>Oops, something went wrong! Please make sure you have entered text that includes some quotes from individuals and try again.</p>`;
-        resultsStatementDiv.style.display = 'block'; // ensure the div is visible
-        resultsStatementDiv.style.backgroundColor = '#F4D4D5'; // Change the color to indicate an error;
+        resultsStatementDiv.style.display = 'block'; 
+        resultsStatementDiv.style.backgroundColor = '#F4D4D5'; 
     });
 }
 
 function drawChart(genderData) {
+
+    console.log("Drawing chart....");
 
     // Define the chart dimensions
     let margin = {top: 20, right: 20, bottom: 30, left: 50};
@@ -258,12 +271,15 @@ function drawChart(genderData) {
         });
 }
 
-let isRunning = false;
+let isRunning = false; // track whether async job suggestions function is already running to prevent multiple calls at the same time
 
 async function jobSuggestions(location, majorityJobs, majorityGender, minorityGender, jobContentsMap) {
+
     if (isRunning) return;
+
     isRunning = true;
     console.log("Job suggestions being generated...")
+
     const modal = document.getElementById('myModal');
     const modalBody = document.getElementById('modal_body');
     const closeModal = document.getElementsByClassName('close')[0];
@@ -283,15 +299,15 @@ async function jobSuggestions(location, majorityJobs, majorityGender, minorityGe
     try {
         for (let job of majorityJobs) {
 
-            if (!jobContentsMap.has(job)) {
-                const scrapeResponse = await fetch('/scrape', {
+            if (!jobContentsMap.has(job)) { // check if job already exists in results before retrieving to avoid duplicates
+                const searchResponse = await fetch('/search', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ location: location, job_title: encodeURIComponent(job), minority_gender: minorityGender })
                 });
     
-                if (scrapeResponse.ok) {
-                    const html = await scrapeResponse.text();
+                if (searchResponse.ok) {
+                    const html = await searchResponse.text();
                     // If there are no results, don't generate a link for this job.
                     if (html.trim().length === 0) {
                         continue;
@@ -299,11 +315,12 @@ async function jobSuggestions(location, majorityJobs, majorityGender, minorityGe
                     // Save the fetched HTML in the map for future use.
                     jobContentsMap.set(job, html);
                 } else {
-                    console.error(`Error scraping job "${job}": ${scrapeResponse.status} ${scrapeResponse.statusText}`);
+                    console.error(`Error searching for profiles matching "${job}": ${searchResponse.status} ${searchResponse.statusText}`);
                     continue;
                 }
             }
-    
+            
+            // Generate and format links for jobs where matching profiles are found
             const li = document.createElement('li');
             const jobLink = document.createElement('a');
             jobLink.href = '#';
@@ -317,20 +334,19 @@ async function jobSuggestions(location, majorityJobs, majorityGender, minorityGe
                 modal.style.display = 'block';
             });
             li.appendChild(jobLink);
-            console.log('Job items in ul before appending ', job, ": ", ul.children)
-            if (!Array.from(ul.children).some(li => li.textContent.trim() === job)) {
+            if (!Array.from(ul.children).some(li => li.textContent.trim() === job)) { // check again for duplicates in the list
+                console.log("Adding source suggestions for ", job, "...");
                 ul.appendChild(li);
             }
-            console.log('Job items in ul after appending ', job, ": ", ul.children)
         }
         
-        if (ul.children.length > 0 && !document.getElementById('job-suggestions-message')) {
+        if (ul.children.length > 0 && !document.getElementById('job-suggestions-message')) { // show this paragraph only if there are suggestions generated
             const job_suggestions = document.createElement('p');
             job_suggestions.id = 'job-suggestions-message';  
             job_suggestions.innerHTML = `You might want to consider looking for more ${minorityGender.toLowerCase()} sources. This story appears to be about or set in ${location}. Click on each link below to look for LinkedIn profiles of ${minorityGender.toLowerCase()} sources that might have background and experience in ${location} and professional roles similar to ${majorityGender.toLowerCase()} sources quoted:`;   
             jobLinksDiv.appendChild(job_suggestions);
         } else {
-            const no_suggestions= document.createElement('p');
+            const no_suggestions= document.createElement('p'); // show this paragraph if there is imbalance but no relevant suggestions
             no_suggestions.innerHTML = `The ${majorityGender.toLowerCase()} sources quoted in this text may play a personal or highly specific role in the story and therefore be hard to replace with other sources. Nonetheless, you might want to consider including more ${minorityGender.toLowerCase()} perspectives.`
             jobLinksDiv.appendChild(no_suggestions);
         }
@@ -339,7 +355,7 @@ async function jobSuggestions(location, majorityJobs, majorityGender, minorityGe
             jobLinksDiv.appendChild(ul);
         }
     } catch (error) {
-        console.error('Error in jobSuggestions:', error);
+        console.error('Error generating job suggestions:', error);
      }
     
 
@@ -363,6 +379,9 @@ async function jobSuggestions(location, majorityJobs, majorityGender, minorityGe
 }
 
 function generateResultsTable(data) {
+
+    console.log("Generating table of sources...");
+
     tableHTML = '';
         tableHTML += '<table class = "source-table"><tr><th>Source</th><th>Gender</th><th>Role</th><th>Quotes</th></tr>';
 
@@ -388,7 +407,8 @@ function generateResultsTable(data) {
 }
 
 function displayResults(response) {
-    console.log('display results data: ', response);
+
+    console.log("Displaying results...");
 
     let location; 
     if (response.location.location != null) {
@@ -400,7 +420,7 @@ function displayResults(response) {
     console.log('The location is: ', location);
 
     let data = response.perspectives_data;
-    console.log('Perspectives data found: ', data);
+    console.log('Source data found: ', data);
 
     let totalSources = data.length;
 
@@ -413,6 +433,8 @@ function displayResults(response) {
     let unknownPercentage = ((unknownCount / totalSources) * 100).toFixed(2);
 
     let minorityGender, majorityGender;
+
+    // Generating the summary of results
 
     if (totalSources === 0) {
         resultsStatementDiv.innerHTML = "There were no sources detected in the text, or the only sources quoted are the main newsmaker(s) or subject(s) of the story. If you think this is wrong, please click on the 'Reset' button and try again.";
@@ -432,6 +454,7 @@ function displayResults(response) {
                 majorityGender = 'Male';
                 resultsStatementDiv.textContent = `There are more men than women quoted in your story.`;
                 resultsStatementDiv.style.backgroundColor = '#FFCD91'; 
+                jobLinksDiv.innerHTML = `<p>There ${maleCount === 1 ? 'was' : 'were'} <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> and <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> quoted as additional sources in your story. Research shows that on average, men are quoted about <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845988/" target="_blank">three times more than women</a> in news articles, reflecting an underrepresentation of women's voices in public discourse.</p>`
             } else if (malePercentage === femalePercentage) {
                 resultsStatementDiv.textContent = "There is a perfect balance of men and women quoted in your story. Great job!";
                 resultsStatementDiv.style.backgroundColor = "#A4D1A2";
@@ -440,8 +463,11 @@ function displayResults(response) {
                 majorityGender = 'Female';
                 resultsStatementDiv.textContent = `There are more women than men quoted in your story.`;
                 resultsStatementDiv.style.backgroundColor = '#FFCD91';
+                jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${maleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story. Research shows that on average, men are quoted about <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845988/" target="_blank">three times more than women</a> in news articles. However, women <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8242240/" target="_blank">tend to be</a> quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. Unless the story is specifically about women or men, it is often desirable to try to get a good balance of voices.</p>`
             }
         }
+
+        // Where there is an imbalance, extract the roles of anyone from the majority gender quoted in a professional role
 
         if (majorityGender != null) {
                 
@@ -453,13 +479,7 @@ function displayResults(response) {
                 }
             }
 
-            majorityJobs = [...new Set(majorityJobs)];
-
-            if (majorityGender === 'Male') {
-                jobLinksDiv.innerHTML = `<p>There ${maleCount === 1 ? 'was' : 'were'} <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> and <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> quoted as additional sources in your story. Research shows that on average, men are quoted about <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845988/" target="_blank">three times more than women</a> in news articles, reflecting an underrepresentation of women's voices in public discourse.</p>`
-            } else if (majorityGender === 'Female') {
-                jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${maleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story. Research shows that on average, men are quoted about <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845988/" target="_blank">three times more than women</a> in news articles. However, women <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8242240/" target="_blank">tend to be</a> quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. Unless the story is specifically about women or men, it is often desirable to try to get a good balance of voices.</p>`
-            }
+            majorityJobs = [...new Set(majorityJobs)]; // remove any duplicates
 
             if (majorityJobs.length != 0) {   
                 
@@ -484,6 +504,8 @@ function displayResults(response) {
     
         generateResultsTable(data);
 
+        console.log("Done analysing text!");
+
         // Show elements after everything is done loading
         resultsStatementDiv.style.display = 'block';
         jobLinksDiv.style.display = 'block';
@@ -502,7 +524,7 @@ function analyseArticle() {
     analyseText(article_text)
         .then(displayResults)
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Error analysing text:', error);
             // Hide the loading spinner and enable the analyse button in case of an error
             loadingSpinner.style.display = 'none';
             analyseButton.disabled = false;
@@ -513,4 +535,9 @@ function analyseArticle() {
 // Add the event listener to the "Analyse" button
 document.getElementById('analyse-button').addEventListener('click', function() {
     analyseArticle();
+});
+
+// Add the event listener to the "Reset" button
+document.getElementById('reset-button').addEventListener('click', function() {
+    resetApp();
 });

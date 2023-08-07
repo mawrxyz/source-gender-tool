@@ -275,7 +275,7 @@ async function processSearchResponse(response, job_title, minority_gender) {
             return employees_data;
         }
 
-app.post('/scrape', async (req, res) => {
+app.post('/search', async (req, res) => {
 
     let location = req.body.location;
     let job_title = req.body.job_title;
