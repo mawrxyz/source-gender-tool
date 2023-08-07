@@ -283,7 +283,11 @@ async function jobSuggestions(location, majorityJobs, majorityGender, minorityGe
     const modal = document.getElementById('myModal');
     const modalBody = document.getElementById('modal_body');
     const closeModal = document.getElementsByClassName('close')[0];
-    const ul = document.getElementById('job_links_ul');
+    let ul = document.getElementById('job_links_ul');
+    if (!ul) {
+        ul = document.createElement('ul');
+        ul.id = 'job_links_ul';
+    }
     ul.innerHTML = '';
     const existingSuggestion = document.getElementById('job-suggestions-message');
     if (existingSuggestion) existingSuggestion.remove();
@@ -481,12 +485,7 @@ function displayResults(response) {
 
             majorityJobs = [...new Set(majorityJobs)]; // remove any duplicates
 
-            if (majorityJobs.length != 0) {   
-                
-                ul = document.createElement('ul');
-                ul.id = 'job_links_ul';
-                jobLinksDiv.appendChild(ul);
-
+            if (majorityJobs.length != 0) {  
                 const jobContentsMap = new Map(); // object to store results each time link clicked so it doesn't have to re-run if clicked again
                 jobSuggestions(location, majorityJobs, majorityGender, minorityGender, jobContentsMap);
             } else {
