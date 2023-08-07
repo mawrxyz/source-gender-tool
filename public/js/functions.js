@@ -274,10 +274,10 @@ async function jobSuggestions(location, majorityJobs, majorityGender, minorityGe
 
     // Add temporary "Generating job suggestions..." message
     const tempMessage = document.createElement('p');
-    tempMessage.id = 'temp-message';  // So you can reference and remove it later
-    tempMessage.className = 'type-animation';  // Attach the CSS class for animation
-    tempMessage.textContent = "Generating job suggestions...";  // The text that appears as if it's being typed
-    tempMessage.style.width = "20em";  // Width that fits the text content
+    tempMessage.id = 'temp-message';  
+    tempMessage.className = 'type-animation';  
+    tempMessage.textContent = "Generating job suggestions...";  
+    tempMessage.style.width = "20em";  
     jobLinksDiv.appendChild(tempMessage);
 
     try {
@@ -331,7 +331,7 @@ async function jobSuggestions(location, majorityJobs, majorityGender, minorityGe
             jobLinksDiv.appendChild(job_suggestions);
         } else {
             const no_suggestions= document.createElement('p');
-            no_suggestions.innerHTML = `The sources quoted in this text may play a personal or highly specific role in the story and therefore be hard to replace with other sources. Nonetheless, you might want to consider including more ${minorityGender.toLowerCase()} perspectives.`
+            no_suggestions.innerHTML = `The ${majorityGender.toLowerCase()} sources quoted in this text may play a personal or highly specific role in the story and therefore be hard to replace with other sources. Nonetheless, you might want to consider including more ${minorityGender.toLowerCase()} perspectives.`
             jobLinksDiv.appendChild(no_suggestions);
         }
     
@@ -470,7 +470,7 @@ function displayResults(response) {
                 const jobContentsMap = new Map(); // object to store results each time link clicked so it doesn't have to re-run if clicked again
                 jobSuggestions(location, majorityJobs, majorityGender, minorityGender, jobContentsMap);
             } else {
-                jobLinksDiv.innerHTML += `<p>The sources quoted in this text may play a personal or highly specific role in the story and therefore be hard to replace with other sources. Nonetheless, you might want to consider including more ${minorityGender.toLowerCase()} perspectives.</p>`
+                jobLinksDiv.innerHTML += `<p>The ${majorityGender.toLowerCase()} sources quoted in this text may play a personal or highly specific role in the story and therefore be hard to replace with other sources. Nonetheless, you might want to consider including more ${minorityGender.toLowerCase()} perspectives.</p>`
             }
         }
 
