@@ -172,13 +172,13 @@ app.post('/detect', async (req, res) => {
 
 function buildSearchURL(job_title, location, minority_gender, restricted = true) {
     let base = `https://www.googleapis.com/customsearch/v1${restricted ? '/siterestrict' : ''}`;
-    let genderQuery = "";
+    let pronouns = "";
     if (minority_gender === 'female') {
-        genderQuery = `%20(she%20OR%20her)`;
+        pronouns = `%20(she%20OR%20her)`;
     } else if (minority_gender === 'male') {
-        genderQuery = `%20(he%20OR%20him)`;
+        pronouns = `%20(he%20OR%20him)`;
     }
-    return `${base}?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=${job_title}%20AND%20${location}${genderQuery}&num=10`;
+    return `${base}?key=${GOOGLE_KEY}&cx=f14c5df87642c4566&q=${job_title}%20AND%20${location}%20${pronouns}&num=10`;
 }
 
 async function processSearchResponse(response, job_title, minority_gender) {
@@ -254,10 +254,6 @@ async function processSearchResponse(response, job_title, minority_gender) {
                 if (sheRegex.test(name.toLowerCase()) && !identifyFemale) {
                     continue; // Skip entries that are coming up just because 'she' is in the person's name (but may exclude actual women with that name)
                 }
-
-                // if (heading.includes(' SHE ')) {
-                //     continue; // Skip entries where the company or job title includes SHE as an abbreviation for something
-                // }
 
                 if ((name.toLowerCase()).includes(job_title.toLowerCase())) {
                     continue; // Skip entries that come up just because the job title e.g. Carpenter/Cook/Baker/Ranger is also a surname
