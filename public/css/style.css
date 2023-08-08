@@ -329,6 +329,10 @@ input[type="text"], textarea {
   width: 100px;
 }
 
+#loading-text {
+  font-family: monospace;
+}
+
 #chart, #results_data {
   margin: 10px;
   padding: 0 20px 20px 20px;
@@ -370,6 +374,7 @@ table td {
 
 .type-animation {
   border-right: 0.2em solid black;
+  width: 20em;
   white-space: nowrap;
   overflow: hidden;
   font-family: monospace;  /* For a typewriter effect */
