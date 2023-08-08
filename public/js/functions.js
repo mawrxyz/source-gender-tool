@@ -329,9 +329,7 @@ async function jobSuggestions(location, majorityJobs, majorityGender, minorityGe
             const jobLink = document.createElement('a');
             jobLink.href = '#';
             jobLink.textContent = job;
-            jobLink.style.textDecoration = "none";
-            jobLink.style.color = "#CD0010";
-            jobLink.style.cursor = "pointer";
+            jobLink.className = jobLinks;
             jobLink.addEventListener('click', (event) => {
                 event.preventDefault();
                 modalBody.innerHTML = jobContentsMap.get(job);

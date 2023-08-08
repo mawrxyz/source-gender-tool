@@ -151,6 +151,16 @@ p a:hover {
   padding: 10px;
 }
 
+.jobLinks {
+  text-Decoration: none;
+  color: #CD0010;
+  cursor: pointer;
+}
+
+.jobLinks:hover {
+  color: #990000;
+}
+
 /* The Modal (background) */
 .modal {
   display: none; /* Hidden by default */
