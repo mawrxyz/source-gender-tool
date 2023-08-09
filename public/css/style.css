@@ -329,8 +329,15 @@ input[type="text"], textarea {
   width: 100px;
 }
 
-#loading-text {
+@keyframes fadeInOut {
+  0% {opacity: 0.5;}
+  50% {opacity: 1;}
+  100% {opacity: 0.5;}
+}
+
+#loading-text, #temp-message {
   font-family: monospace;
+  animation: fadeInOut 1.5s infinite;
 }
 
 #chart, #results_data {
@@ -360,25 +367,6 @@ table td {
   margin: 10px;
   text-align: center;
   font-size: 1.2rem;
-}
-
-/* Typing effect for when job suggestions are loading */
-@keyframes typing {
-  from { width: 0; }
-  to { width: 100%; }
-}
-
-@keyframes blink {
-  50% { border-color: transparent; }
-}
-
-.type-animation {
-  border-right: 0.2em solid black;
-  width: 20em;
-  white-space: nowrap;
-  overflow: hidden;
-  font-family: monospace;  /* For a typewriter effect */
-  animation: typing 3s steps(40, end), blink 0.75s step-end infinite;
 }
 
 #job_links.visible {

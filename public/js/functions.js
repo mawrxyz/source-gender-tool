@@ -142,9 +142,7 @@ function loadingAnalysis() {
     // Add temporary "Generating job suggestions..." message
     const tempMessage = document.createElement('p');
     tempMessage.id = 'temp-message';  
-    tempMessage.className = 'type-animation';  
     tempMessage.textContent = "Generating job suggestions...";  
-    tempMessage.style.width = "20em";  
     jobLinksDiv.appendChild(tempMessage);
 }
 
