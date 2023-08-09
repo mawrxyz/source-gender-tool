@@ -65,7 +65,7 @@ app.post('/detect', async (req, res) => {
         const response = await openai.createChatCompletion({
             model: "gpt-4",
             messages: [
-                {role: "system", content: `You will be provided with a block of text. Your first task is to identify where the story takes place, if this information is available (if not, return {location: null} as the first item in the response array). The most specific you should get should be a city or town, but it can be broader than that. Your second task will be to extract the names of individuals who are quoted as saying something in the text, their gender, and their connection to the subject of the story or the reason for their inclusion in the story. 
+                {role: "system", content: `You will be provided with a block of text. Your first task is to identify where the story takes place (or "location"), if this information is available (if not, return {location: null} as the first item in the response array). The most specific you should get should be a city or town, but it can be broader than that. Your second task will be to extract the names of individuals who are quoted as saying something in the text, their gender, and their connection to the subject of the story or the reason for their inclusion in the story. 
                 
                 **IMPORTANT: Only include individuals who are providing supplementary comments or perspectives who could be replaced by others of similar background, experiences or expertise. Exclude individuals who are the main subject(s) of the news article. Also, exclude individuals who are only mentioned but do not provide quotes.**
 
@@ -73,41 +73,41 @@ app.post('/detect', async (req, res) => {
                 
                 If the role is a professional one, phrase the result such that someone with a similar background or expertise could be found by searching for the role on a job site like LinkedIn, and put "yes" as the value for the key "linkedin". Otherwise put "no" for the key "linkedin" if the role is highly personal such as the relative of the main subject or a resident of a city, or the person's title is highly specific such as the Minister in charge of the area the story is about, whose perspective would be hard to replace. 
                 
-                State the individual's gender based on names, pronouns, gendered honorifics used in reference to that individual (NOT anyone else they mention in their quote) or other contextual clues. However, do not make any assumptions based on job titles or honorifics that could apply to both genders. If it is ambiguous, such as if the name is gender neutral, the pronoun "they" is used to reference an individual, or there are no pronouns or honorifics used, state the gender as "unknown". Briefly provide reasons for your determination of the person's gender. 
+                State the individual's "gender" based on names, pronouns, gendered honorifics used in reference to that individual (NOT anyone else they mention in their quote) or other contextual clues. However, do not make any assumptions based on job titles or honorifics that could apply to both genders. If it is ambiguous, such as if the name is gender neutral, the pronoun "they" is used to reference an individual, or there are no pronouns or honorifics used, state the gender as "unknown". Under "reasons", briefly summarise the relevant factors for your determination of the person's gender.
 
                 Extract the quotes that are used, with each line containing a direct or indirect quote presented as a list item with the exact wording used in the text. There must be at least one quote for each individual included. Otherwise, omit that individual. 
                 
                 Please return your response as an array of JavaScript objects using British spelling, with each object representing an individual. For example:
                 [{"location": "Cardiff"},
                 {
-                "name": "Jane Doe",
-                "gender": "Female",
-                "reasons": "Jane is a common female name. The honorific "Ms" and the pronoun "she" are also used to refer to Jane.",
-                "role": "Senior political analyst at a think tank",
-                "linkedin": "yes",
-                "quotes": "<ul><li>Jane Doe, a senior political analyst at US think tank Think Politics, said this was a 'highly concerning' situation.</li><li>'It is hard to say which way this will go,' she added.</li></ul>"
+                    "name": "Jane Doe",
+                    "gender": "Female",
+                    "reasons": "Jane is a common female name. The honorific "Ms" and the pronoun "she" are also used to refer to Jane.",
+                    "role": "Senior political analyst at a think tank",
+                    "linkedin": "yes",
+                    "quotes": "<ul><li>Jane Doe, a senior political analyst at US think tank Think Politics, said this was a 'highly concerning' situation.</li><li>'It is hard to say which way this will go,' she added.</li></ul>"
                 },
                 {
-                "name": "Robin Doe",
-                "gender": "Male",
-                "reasons": "Robin is a unisex name, but the use of the pronoun "he" indicates this source is likely to be male.",
-                "role": "Resident of Cardiff city",
-                "linkedin": "no",
-                "quotes": "<ul><li>Cardiff resident Robin Doe said he largely supported the city's policies regarding sustainable energy.</li></ul>"
+                    "name": "Robin Doe",
+                    "gender": "Male",
+                    "reasons": "Robin is a unisex name, but the use of the pronoun "he" indicates this source is likely to be male.",
+                    "role": "Resident of Cardiff city",
+                    "linkedin": "no",
+                    "quotes": "<ul><li>Cardiff resident Robin Doe said he largely supported the city's policies regarding sustainable energy.</li></ul>"
                 },
-                "name": "Unnamed spokesman",
-                "gender": "Male",
-                "reasons": "The term "spokesman" tends to indicate a spokesperson of male gender.",
-                "role": "Spokesperson for the Welsh government",
-                "linkedin": "yes",
-                "quotes": "<ul><li>'We are looking into the matter,' a spokesman for the Welsh government said.</li></ul>"
+                    "name": "Unnamed spokesman",
+                    "gender": "Male",
+                    "reasons": "The term "spokesman" tends to indicate a spokesperson of male gender.",
+                    "role": "Spokesperson for the Welsh government",
+                    "linkedin": "yes",
+                    "quotes": "<ul><li>'We are looking into the matter,' a spokesman for the Welsh government said.</li></ul>"
                 },
-                "name": "Alex Tan",
-                "gender": "Unknown",
-                "reasons": "Although Alex is more often associated with men, it can also be a female name. "They" as a singular pronoun is often used by nonbinary people.",
-                "role": "Defence lawyer",
-                "linkedin": "no",
-                "quotes": "<ul><li>'My client is innocent, and we will shortly provide new evidence that will prove it,' her lawyer Alex Tan said. They added that the accused looked forward to seeing her family again.</li></ul>"
+                    "name": "Alex Tan",
+                    "gender": "Unknown",
+                    "reasons": "Although Alex is more often associated with men, it can also be a female name. "They" as a singular pronoun is often used by nonbinary people.",
+                    "role": "Defence lawyer",
+                    "linkedin": "no",
+                    "quotes": "<ul><li>'My client is innocent, and we will shortly provide new evidence that will prove it,' her lawyer Alex Tan said. They added that the accused looked forward to seeing her family again.</li></ul>"
                 }]`},
                 {role: "user", content: article_text}
             ],

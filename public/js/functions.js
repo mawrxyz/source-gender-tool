@@ -139,10 +139,10 @@ function loadingAnalysis() {
 
     // Display the loading spinner
     loadingSpinner.style.display = 'block';
-    // Add temporary "Generating job suggestions..." message
+    // Add temporary "Generating source suggestions..." message
     const tempMessage = document.createElement('p');
     tempMessage.id = 'temp-message';  
-    tempMessage.textContent = "Generating job suggestions...";  
+    tempMessage.textContent = "Generating source suggestions...";  
     jobLinksDiv.appendChild(tempMessage);
 }
 
@@ -283,7 +283,7 @@ async function jobSuggestions(location, majorityJobs, majorityGender, minorityGe
     if (isRunning) return;
 
     isRunning = true;
-    console.log("Job suggestions being generated...")
+    console.log("Source suggestions being generated...")
 
     const modal = document.getElementById('myModal');
     const modalBody = document.getElementById('modal_body');
@@ -297,11 +297,11 @@ async function jobSuggestions(location, majorityJobs, majorityGender, minorityGe
     const existingSuggestion = document.getElementById('job-suggestions-message');
     if (existingSuggestion) existingSuggestion.remove();
 
-    // Add temporary "Generating job suggestions..." message
+    // Add temporary "Generating source suggestions..." message
     const tempMessage = document.createElement('p');
     tempMessage.id = 'temp-message';  
     tempMessage.className = 'type-animation';  
-    tempMessage.textContent = "Generating job suggestions...";  
+    tempMessage.textContent = "Generating source suggestions...";  
     tempMessage.style.width = "20em";  
     jobLinksDiv.appendChild(tempMessage);
 
@@ -350,7 +350,7 @@ async function jobSuggestions(location, majorityJobs, majorityGender, minorityGe
         if (ul.children.length > 0 && !document.getElementById('job-suggestions-message')) { // show this paragraph only if there are suggestions generated
             const job_suggestions = document.createElement('p');
             job_suggestions.id = 'job-suggestions-message';  
-            job_suggestions.innerHTML = `You might want to consider looking for more ${minorityGender.toLowerCase()} sources. This story appears to be about or set in ${location}. Click on each link below to look for LinkedIn profiles of ${minorityGender.toLowerCase()} sources that might have background and experience in ${location} and professional roles similar to ${majorityGender.toLowerCase()} sources quoted:`;   
+            job_suggestions.innerHTML = `You might want to consider looking for more ${minorityGender.toLowerCase()} sources. This story appears to be about or set in ${location}. Click on each link below to look for LinkedIn profiles of ${minorityGender.toLowerCase()} sources that might have background and experience in ${location} and professional roles similar to the ${majorityGender.toLowerCase()} sources quoted:`;   
             jobLinksDiv.appendChild(job_suggestions);
         } else {
             const no_suggestions= document.createElement('p'); // show this paragraph if there is imbalance but no relevant suggestions
@@ -362,7 +362,7 @@ async function jobSuggestions(location, majorityJobs, majorityGender, minorityGe
             jobLinksDiv.appendChild(ul);
         }
     } catch (error) {
-        console.error('Error generating job suggestions:', error);
+        console.error('Error generating source suggestions:', error);
      }
     
 
@@ -454,14 +454,14 @@ function displayResults(response) {
         if (unknownCount > 0 && maleCount === 0 && femaleCount === 0)  {
             resultsStatementDiv.innerHTML = "We were not able to confidently determine the gender of any sources quoted.";
             resultsStatementDiv.style.backgroundColor = '#FFCD91';
-            jobLinksDiv.innerHTML = `<p>Gender is complex and not limited to "male" or "female". Furthermore, naming conventions vary by culture and individual preference, so it is not always possible to accurately determine the gender of a person by their name alone.</p><p>Nonetheless, research shows that on average men are quoted about <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845988/" target="_blank">three times more than women</a> in news articles, reflecting an underrepresentation of women's voices in public discourse. It is always good to try to get a good balance of voices in your story.</p>`;
+            jobLinksDiv.innerHTML = `<p>Gender is complex and not limited to "male" or "female". Furthermore, naming conventions vary by culture and individual preference, so it is not always possible to accurately determine the gender of a person by their name alone.</p><p>Nonetheless, it is always good to try to get a good balance of voices in your story.</p>`;
         } else {
             if (malePercentage > femalePercentage) {
                 minorityGender = 'Female';
                 majorityGender = 'Male';
                 resultsStatementDiv.textContent = `There are more men than women quoted in your story.`;
                 resultsStatementDiv.style.backgroundColor = '#FFCD91'; 
-                jobLinksDiv.innerHTML = `<p>There ${maleCount === 1 ? 'was' : 'were'} <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> and <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> quoted as additional sources in your story. Research shows that on average, men are quoted about <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845988/" target="_blank">three times more than women</a> in news articles, reflecting an underrepresentation of women's voices in public discourse.</p>`
+                jobLinksDiv.innerHTML = `<p>There ${maleCount === 1 ? 'was' : 'were'} <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> and <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> quoted as additional sources in your story.</p>`
             } else if (malePercentage === femalePercentage) {
                 resultsStatementDiv.textContent = "There is a perfect balance of men and women quoted in your story. Great job!";
                 resultsStatementDiv.style.backgroundColor = "#A4D1A2";
@@ -470,7 +470,7 @@ function displayResults(response) {
                 majorityGender = 'Female';
                 resultsStatementDiv.textContent = `There are more women than men quoted in your story.`;
                 resultsStatementDiv.style.backgroundColor = '#FFCD91';
-                jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${maleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story. Research shows that on average, men are quoted about <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845988/" target="_blank">three times more than women</a> in news articles. However, women <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8242240/" target="_blank">tend to be</a> quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. Unless the story is specifically about women or men, it is often desirable to try to get a good balance of voices.</p>`
+                jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${maleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story. Women <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8242240/" target="_blank">tend to be</a> quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. Unless the story is specifically about women or men, it is often desirable to try to get a good balance of voices.</p>`
             }
         }
 

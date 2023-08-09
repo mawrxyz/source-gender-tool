@@ -24,7 +24,7 @@
         <p><a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845988/" target="_blank" rel="noopener noreferrer">Research shows</a> that men are quoted about three times as frequently as women in the news, reflecting a persistent underrepresentation of women's voices in the media.</p>
         <p>My proposed solution uses <a href="https://openai.com/research/gpt-4" target="_blank" rel="noopener noreferrer">OpenAI's GPT-4 model</a> to detect where the story takes place, as well as the name and gender of each source, the quotes attributed to them and the role they play in the story (which could be either professional or personal).</p>
         <p>It focuses on <em>additional</em> sources: people quoted who are not the main subject or newsmaker. Journalists often have to include the main newsmaker, but they have a choice as to who they interview to provide expert opinion or additional perspectives.</p>
-        <p>Ideally, this should be used prior to a story being published, so journalists can assess the gender balance of sources quoted in their stories and consider whether there is a need to talk to more people.</p>
+        <p>Ideally, this tool should be used prior to a story being published, so journalists can assess the gender balance of sources quoted in their stories and consider whether there is a need to talk to more people.</p>
         <p>When EquiQuote detects a gender imbalance it uses <a href="https://developers.google.com/custom-search/v1/overview" target="_blank">Google's Custom Search API</a> to look for LinkedIn profiles of people from the underrepresented gender who might have similar backgrounds and expertise as those already in the story (assuming they were quoted in a professional capacity). Where possibly useful profiles are found, it will suggest them.</p>
         <p>It may not be possible to ever achieve 100% accuracy without asking the sources themselves what gender they identify with. The app aims to provide an informed estimate of the gender balance in stories based on names, pronouns and honorifics.</p>
         <p>I do not collect any of the user input from this app. The input is however used directly to make calls to OpenAI's API to generate the results. OpenAI's <a href="https://openai.com/api-data-privacy" target="_blank" rel="noopener noreferrer">API data privacy policy</a> states it does not use these inputs to train its models.</p>
@@ -39,7 +39,7 @@
                 <h2>Text input</h2>
                 <div id="form_container">
                     <div class="form-field">
-                        <label for="article_text"><p>Paste an article below to see an analysis of the sources quoted. Please note there is a maximum of 1000 words, and text beyond this limit will not be considered:</p></label>
+                        <label for="article_text"><p>Paste an article below to see an analysis of the sources quoted. Please note there is a maximum of 1000 words, and text beyond this limit will be ignored:</p></label>
 
                         <textarea id="article_text" name="article_text" oninput="countWords(this, document.getElementById('wordCount'))"></textarea>
                     </div>
