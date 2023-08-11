@@ -71,13 +71,13 @@ app.post('/detect', async (req, res) => {
 
                 Describe each individual's connection (or "role") in broad terms that explain why their perspectives are valuable to the story. This could be, for example, due to professional expertise, personal experiences or a shared background with other people mentioned in the story. Do not mention specific company names or overly detailed job titles, unless these details are key to the person's role in the story. 
                 
-                If the role is a professional one, phrase the result such that someone with a similar background or expertise could be found by searching for the role on a job site like LinkedIn, and put "yes" as the value for the key "linkedin". Otherwise put "no" for the key "linkedin" if the role is highly personal such as the relative of the main subject or a resident of a city, or the person's title is highly specific such as the Minister in charge of the area the story is about, whose perspective would be hard to replace. 
+                If the role is a professional one, phrase the result such that someone with similar background or expertise could be found by searching for the role on a job site like LinkedIn, and put "yes" as the value for the key "linkedin". Otherwise put "no" for the key "linkedin" if the role is highly personal such as the relative of the main subject or a resident of a city, or the person's title is highly specific such as the Minister in charge of the area the story is about, whose perspective would be hard to replace. 
                 
                 State the individual's "gender" based on names, pronouns, gendered honorifics used in reference to that individual (NOT anyone else they mention in their quote) or other contextual clues. However, do not make any assumptions based on job titles or honorifics that could apply to both genders. If it is ambiguous, such as if the name is gender neutral, the pronoun "they" is used to reference an individual, or there are no pronouns or honorifics used, state the gender as "unknown". Under "reasons", briefly summarise the relevant factors for your determination of the person's gender.
 
                 Extract the quotes that are used, with each line containing a direct or indirect quote presented as a list item with the exact wording used in the text. There must be at least one quote for each individual included. Otherwise, omit that individual. 
                 
-                Please return your response as an array of JavaScript objects using British spelling, with each object representing an individual. For example:
+                Please return your response as an array of JavaScript objects in British English, with the first object representing the location and each subsequent object representing an individual. For example:
                 [{"location": "Cardiff"},
                 {
                     "name": "Jane Doe",
@@ -90,7 +90,7 @@ app.post('/detect', async (req, res) => {
                 {
                     "name": "Robin Doe",
                     "gender": "Male",
-                    "reasons": "Robin is a unisex name, but the use of the pronoun "he" indicates this source is likely to be male.",
+                    "reasons": "The use of the pronoun "he" indicates this source is likely to be male.",
                     "role": "Resident of Cardiff city",
                     "linkedin": "no",
                     "quotes": "<ul><li>Cardiff resident Robin Doe said he largely supported the city's policies regarding sustainable energy.</li></ul>"
@@ -104,7 +104,7 @@ app.post('/detect', async (req, res) => {
                 },
                     "name": "Alex Tan",
                     "gender": "Unknown",
-                    "reasons": "Although Alex is more often associated with men, it can also be a female name. "They" as a singular pronoun is often used by nonbinary people.",
+                    "reasons": ""They" as a singular pronoun is often used by nonbinary people.",
                     "role": "Defence lawyer",
                     "linkedin": "no",
                     "quotes": "<ul><li>'My client is innocent, and we will shortly provide new evidence that will prove it,' her lawyer Alex Tan said. They added that the accused looked forward to seeing her family again.</li></ul>"
@@ -122,10 +122,21 @@ app.post('/detect', async (req, res) => {
 
         try {
             let assistantOutput = response.data.choices[0].message.content;
+            assistantOutput = assistantOutput.replace(/\\'/g, "'");
+            assistantOutput = assistantOutput.trim();
 
             try {
                 console.log('assistantOutput: ', assistantOutput)
-                data = JSON.parse(assistantOutput);
+                console.log('type: ', typeof assistantOutput);
+
+                if (assistantOutput.charCodeAt(0) === 0xFEFF) {
+                    assistantOutput = assistantOutput.slice(1);
+                }
+                if (typeof assistantOutput === "string") {
+                    data = JSON.parse(assistantOutput);
+                } else {
+                    data = assistantOutput;
+                }
             } catch (error) {
                 if (assistantOutput.charAt(0) !== '[') {
                     assistantOutput = assistantOutput.slice(1, -1);

@@ -419,12 +419,7 @@ function displayResults(response) {
 
     console.log("Displaying results...");
 
-    let location; 
-    if (response.location.location != null) {
-        location = response.location.location;
-    } else {
-        location = 'unknown';
-    }
+    let location = response.location.location || 'unknown';
 
     console.log('The location is: ', location);
 
@@ -529,6 +524,9 @@ function analyseArticle() {
         .then(displayResults)
         .catch(error => {
             console.error('Error analysing text:', error);
+            resultsStatementDiv.innerHTML = `<p>Oops, something went wrong! Please make sure you have entered text that includes some quotes from individuals and try again.</p>`;
+            resultsStatementDiv.style.display = 'block'; 
+            resultsStatementDiv.style.backgroundColor = '#F4D4D5'; 
             // Hide the loading spinner and enable the analyse button in case of an error
             loadingSpinner.style.display = 'none';
             analyseButton.disabled = false;
