@@ -65,7 +65,7 @@ app.post('/detect', async (req, res) => {
         const response = await openai.createChatCompletion({
             model: "gpt-4",
             messages: [
-                {role: "system", content: `You will be provided with a block of text. Your first task is to identify where the story takes place (or "location"), if this information is available (if not, return {location: null} as the first item in the response array). The most specific you should get should be a city or town, but it can be broader than that. Your second task will be to extract the names of individuals who are quoted as saying something in the text, their gender, and their connection to the subject of the story or the reason for their inclusion in the story. 
+                {role: "system", content: `You will be provided with a block of text. Your first task is to identify where the story takes place (or "location"), if this information is available (if not, return {location: null} as the first item in the response array). The most specific you should get should be a city or town, but it can be broader than that. Your second task will be to identify individuals who are quoted as saying something in the text, including their name if available, their gender, and their connection to the subject of the story or the reason for their inclusion in the story. If the individual is unnamed, provide whatever identifying description is given e.g. "A government source" or "An unnamed resident".
                 
                 **IMPORTANT: Only include individuals who are providing supplementary comments or perspectives who could be replaced by others of similar background, experiences or expertise. Exclude individuals who are the main subject(s) of the news article. Also, exclude individuals who are only mentioned but do not provide quotes.**
 
@@ -78,7 +78,7 @@ app.post('/detect', async (req, res) => {
                 Extract the quotes that are used, with each line containing a direct or indirect quote presented as a list item with the exact wording used in the text. There must be at least one quote for each individual included. Otherwise, omit that individual. 
                 
                 Please return your response as an array of JavaScript objects in British English, with the first object representing the location and each subsequent object representing an individual. For example:
-                [{"location": "Cardiff"},
+                [{"location": "Cardiff, Wales"},
                 {
                     "name": "Jane Doe",
                     "gender": "Female",
