@@ -1,9 +1,14 @@
 // Get document elements
 const sourceTable = document.getElementById('source_table');
+const resultsPlaceholder = document.getElementById('results_placeholder');
 const loadingSpinner = document.getElementById('loading-spinner');
 const analyseButton = document.getElementById('analyse-button');
+const resetButton = document.getElementById('reset-button');
 const resultsStatementDiv = document.getElementById('results_statement');
 const jobLinksDiv = document.getElementById('job_links');
+const panel = document.getElementById("sidePanel");
+const aboutButton = document.getElementById("aboutButton");
+const articleText = document.getElementById('article_text');
 
 // Toggle 'About' panel on click
 
@@ -11,16 +16,14 @@ let isPanelOpen = false; // variable to keep track of the panel state
 
 function toggleNav(event) {
     event.stopPropagation();
-    const panel = document.getElementById("sidePanel");
-    const button = document.getElementById("aboutButton");
-
+    
     if (isPanelOpen) { // if the panel is open
         if (window.innerWidth <= 768) { // check if screen size is small
             panel.style.transform = "translateY(-100%)";
         } else {
             panel.style.transform = "translateX(-100%)";
         }
-        button.style.left = "0";
+        aboutButton.style.left = "0";
         isPanelOpen = false;
     } else { // if the panel is closed
         if (window.innerWidth <= 768) { // check if screen size is small
@@ -28,36 +31,31 @@ function toggleNav(event) {
         } else {
             panel.style.transform = "translateX(0%)";
         }
-        button.style.left = window.innerWidth <= 768 ? "50%" : "28%";
+        aboutButton.style.left = window.innerWidth <= 768 ? "50%" : "28%";
         isPanelOpen = true;
     }
 }
 
 document.addEventListener('click', function(event) {
-    const panel = document.getElementById("sidePanel");
-    const button = document.getElementById("aboutButton");
 
-    if (isPanelOpen && event.target !== button) { // if the panel is open and the click target is not the button
+    if (isPanelOpen && event.target !== aboutButton) { // if the panel is open and the click target is not the button
         if (window.innerWidth <= 768) { // check if screen size is small
             panel.style.transform = "translateY(-100%)";
         } else {
             panel.style.transform = "translateX(-100%)";
         }
-        button.style.left = "0";
+        aboutButton.style.left = "0";
         isPanelOpen = false;
     }
 });
 
 // Stop propagation of click events within the panel so it doesn't close when the panel is clicked
-document.getElementById('sidePanel').addEventListener('click', function(event) {
+panel.addEventListener('click', function(event) {
     event.stopPropagation();
 });
   
 // Set the buttons as disabled if textbox is blank
 document.addEventListener("DOMContentLoaded", function() {
-    const analyseButton = document.getElementById('analyse-button');
-    const resetButton = document.getElementById('reset-button');
-    const articleText = document.getElementById('article_text');
 
     // Disable the buttons if textarea is empty
     analyseButton.disabled = !articleText.value.trim();
@@ -65,9 +63,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // Add an event listener to the textarea to enable/disable the buttons based on whether there is input text
-document.getElementById('article_text').addEventListener('input', function() {
-        const analyseButton = document.getElementById('analyse-button');
-        const resetButton = document.getElementById('reset-button');
+articleText.addEventListener('input', function() {
 
         // The "Analyse" button is disabled when the textarea is empty
         analyseButton.disabled = !this.value.trim();
@@ -78,28 +74,30 @@ function resetApp() {
 
     console.log("Resetting app.");
     // Clear the text area
-    document.getElementById('article_text').value = '';
+    articleText.value = '';
 
     // Clear the word count
     document.getElementById('wordCount').textContent = '0';
 
     // Clear the results
-    document.getElementById('source_table').innerHTML = '';
-    document.getElementById('results_statement').style.display = 'none';
-    document.getElementById('results_statement').style.backgroundColor = '#FFCD91';
-    document.getElementById('results_statement').innerHTML = '';
-    document.getElementById('job_links').style.display = 'none';
-    document.getElementById('job_links').innerHTML = '';
+    sourceTable.innerHTML = '';
+    resultsStatementDiv.style.display = 'none';
+    resultsStatementDiv.style.backgroundColor = '#FFCD91';
+    resultsStatementDiv.innerHTML = '';
+    jobLinksDiv.style.display = 'none';
+    jobLinksDiv.innerHTML = '';
 
     // Clear D3 chart
     d3.select("#chart").html("");
     
     // Disable the analyse button
-    document.getElementById('analyse-button').disabled = true;
-    document.getElementById('analyse-button').style.display = 'block';
+    analyseButton.disabled = true;
+    analyseButton.style.display = 'block';
     
-    // Hide the loading spinner
-    document.getElementById('loading-spinner').style.display = 'none';
+    // Hide the loading spinner and display results placeholder
+    loadingSpinner.style.display = 'none';
+    resultsPlaceholder.style.display = 'block';
+    
 }
 
 function countWords(textarea, display) {
@@ -137,20 +135,16 @@ function loadingAnalysis() {
     // Disable analyse button while loading
     analyseButton.disabled = true;
 
-    // Display the loading spinner
+    // Display the loading spinner and hide results placeholder
     loadingSpinner.style.display = 'block';
-    // Add temporary "Generating source suggestions..." message
-    const tempMessage = document.createElement('p');
-    tempMessage.id = 'temp-message';  
-    tempMessage.textContent = "Generating source suggestions...";  
-    jobLinksDiv.appendChild(tempMessage);
+    resultsPlaceholder.style.display = 'none';
 }
 
 function getArticleText() {
 
     console.log("Retrieving text from user input...");
 
-    const article_text = document.getElementById('article_text').value;
+    const article_text = articleText.value;
     if (!article_text.trim()) {
         alert('Please enter some article text to analyse.');
         return null;
@@ -535,11 +529,11 @@ function analyseArticle() {
 }
 
 // Add the event listener to the "Analyse" button
-document.getElementById('analyse-button').addEventListener('click', function() {
+analyseButton.addEventListener('click', function() {
     analyseArticle();
 });
 
 // Add the event listener to the "Reset" button
-document.getElementById('reset-button').addEventListener('click', function() {
+resetButton.addEventListener('click', function() {
     resetApp();
 });

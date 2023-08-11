@@ -231,9 +231,14 @@ label {
   margin-bottom: 10px;
 }
 
-label p {
+label p, #results_placeholder {
   font-size: 1.1rem;
   text-align: left;
+}
+
+#results_placeholder {
+  margin: 0;
+  text-align: center;
 }
 
 textarea, button {

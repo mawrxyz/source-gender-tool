@@ -112,7 +112,7 @@ app.post('/detect', async (req, res) => {
                 {role: "user", content: article_text}
             ],
             temperature: 0,
-            max_tokens: 2000
+            max_tokens: 2500
         });
 
         console.log('Response data: ', response.data);
