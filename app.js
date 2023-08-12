@@ -14,11 +14,14 @@ let users = {
     [process.env.TEST_USERNAME]: process.env.TEST_PASSWORD,
 }
 
-app.use(basicAuth({
-    users: users,
-    challenge: true,
-    unauthorizedResponse: 'Unauthorised'
-}))
+console.log(`Current node environment: ${process.env.NODE_ENV}`)
+if (process.env.NODE_ENV !== 'development') {
+    app.use(basicAuth({
+        users: users,
+        challenge: true,
+        unauthorizedResponse: 'Unauthorised'
+    }))
+}
 
 // Configure app
 

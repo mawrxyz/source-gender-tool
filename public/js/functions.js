@@ -154,7 +154,7 @@ function getArticleText() {
 
 function analyseText(article_text) {
 
-    console.log("Analaysing text...");
+    console.log("Analysing text...");
 
     return fetch('/detect', {
         method: 'POST',
