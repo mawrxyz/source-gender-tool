@@ -443,7 +443,7 @@ function displayResults(response) {
     } else {
 
         if (unknownCount > 0 && maleCount === 0 && femaleCount === 0)  {
-            resultsStatementDiv.innerHTML = "We were not able to confidently determine the gender of any sources quoted.";
+            resultsStatementDiv.innerHTML = "We were not able to confidently determine the gender of any of the additional sources quoted.";
             resultsStatementDiv.style.backgroundColor = '#FFCD91';
             jobLinksDiv.innerHTML = `<p>Gender is complex and not limited to "male" or "female". Furthermore, naming conventions vary by culture and individual preference, so it is not always possible to accurately determine the gender of a person by their name alone.</p><p>Nonetheless, it is always good to try to get a good balance of voices in your story.</p>`;
         } else {
