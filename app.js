@@ -57,7 +57,7 @@ app.get("/", (req, res) => {
 });
 
 app.post('/detect', async (req, res) => {
-    // Obtain the text to analyze from the request body
+    // Obtain the text to analyse from the request body
     let article_text = req.body.article_text;
     
     let location = null;
