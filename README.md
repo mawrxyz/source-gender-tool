@@ -52,7 +52,7 @@ Gender is complex, but for simplicity this tool focuses on binary categorisation
 
 GPT-4 aims to mimic natural human language and can produce unpredictable responses. While I've optimised the prompt to achieve consistent outputs, there's no guarantee of it always performing as expected.
 
-The source suggestions are based on a custom Google search targeting http://linkedin.com/in, with professional roles of sources already present in the text, the location of the story as well as the pronouns of the underrepresented gender, if any. This is quite a simple approach to looking for alternative sources, equivalent of the journalist just doing a Google search themselves. I recognise that not all good alternatives would show up in such a search, and not all of the results would be relevant. It is meant to provide inspiration and a gentle nudge towards looking for more sources rather than as exhaustive resource. 
+The source suggestions are based on a custom Google search targeting [LinkedIn](https://www.linkedin.com/), with professional roles of sources already present in the text, the location of the story as well as the pronouns of the underrepresented gender, if any. This is quite a simple approach to looking for alternative sources, equivalent of the journalist just doing a Google search themselves. I recognise that not all good alternatives would show up in such a search, and not all of the results would be relevant. It is meant to provide inspiration and a gentle nudge towards looking for more sources rather than as exhaustive resource. 
 
 ## Future Development
 
