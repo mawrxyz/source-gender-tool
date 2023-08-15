@@ -16,9 +16,11 @@ I'm [Melissa Zhu](https://www.linkedin.com/in/melissa-zhu/), a journalist from S
 
 This repository is licensed under the [GNU General Public License v3.0](https://choosealicense.com/licenses/gpl-3.0/). A copy of the licence is available at `LICENSE.md`.
 
+### Prerequisites:
+
 This tool uses [Node.js](https://nodejs.org/en/), so you will need to have it installed to run the code.
 
-### Installation Steps:
+### Installing EquiQuote:
 
 1. **Clone the Repository**:
     ```bash
@@ -31,7 +33,7 @@ This tool uses [Node.js](https://nodejs.org/en/), so you will need to have it in
     npm install
     ```
 
-3. **Setup API Keys**:  
+3. **Set Up API Keys**:  
     - You will need your own API keys for both a [paid OpenAI account](https://openai.com/pricing) and Google's [Custom Search JSON API](https://developers.google.com/custom-search/v1/overview). It is important that you keep these keys private to avoid hitting usage limits or unauthorised users making potentially expensive API calls to GPT-4.
     - Store these keys in a `.env` file by copying the example file:
         ```bash
