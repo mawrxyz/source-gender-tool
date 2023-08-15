@@ -13,8 +13,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with EquiQuote.  If not, see <https://www.gnu.org/licenses/>.
-*/
+along with EquiQuote.  If not, see <https://www.gnu.org/licenses/>. */
 
 // Get document elements
 const sourceTable = document.getElementById('source_table');
@@ -29,27 +28,18 @@ const aboutButton = document.getElementById("aboutButton");
 const articleText = document.getElementById('article_text');
 
 // Toggle 'About' panel on click
-
 let isPanelOpen = false; // variable to keep track of the panel state
 
 function toggleNav(event) {
     event.stopPropagation();
     
     if (isPanelOpen) { // if the panel is open
-        if (window.innerWidth <= 768) { // check if screen size is small
-            panel.style.transform = "translateY(-100%)";
-        } else {
-            panel.style.transform = "translateX(-100%)";
-        }
+        panel.style.transform = "translateX(-100%)";
         aboutButton.style.left = "0";
         isPanelOpen = false;
     } else { // if the panel is closed
-        if (window.innerWidth <= 768) { // check if screen size is small
-            panel.style.transform = "translateY(0)";
-        } else {
-            panel.style.transform = "translateX(0%)";
-        }
-        aboutButton.style.left = window.innerWidth <= 768 ? "50%" : "28%";
+        panel.style.transform = "translateX(0%)";
+        aboutButton.style.left = "28%";
         isPanelOpen = true;
     }
 }
@@ -57,11 +47,7 @@ function toggleNav(event) {
 document.addEventListener('click', function(event) {
 
     if (isPanelOpen && event.target !== aboutButton) { // if the panel is open and the click target is not the button
-        if (window.innerWidth <= 768) { // check if screen size is small
-            panel.style.transform = "translateY(-100%)";
-        } else {
-            panel.style.transform = "translateX(-100%)";
-        }
+        panel.style.transform = "translateX(-100%)";
         aboutButton.style.left = "0";
         isPanelOpen = false;
     }
@@ -312,7 +298,6 @@ async function sourceSuggestions(location, majorityJobs, majorityGender, minorit
     // Add temporary "Generating source suggestions..." message
     const tempMessage = document.createElement('p');
     tempMessage.id = 'temp-message';  
-    tempMessage.className = 'type-animation';  
     tempMessage.textContent = "Generating source suggestions...";  
     tempMessage.style.width = "20em";  
     jobLinksDiv.appendChild(tempMessage);
@@ -363,7 +348,8 @@ async function sourceSuggestions(location, majorityJobs, majorityGender, minorit
             const source_suggestions = document.createElement('p');
             source_suggestions.id = 'source-suggestions-message';  
 
-            let locationStatement = (location && location !== "unknown") ? `This story appears to be about or set in ${location}. Click on each link below to look for LinkedIn profiles of ${minorityGender.toLowerCase()} sources that might have background and experience in ${location} and ` : `Click on each link below to look for LinkedIn profiles of ${minorityGender.toLowerCase()} sources that might have `;
+            let locationStatement = (location && location !== "unknown") ? `This story appears to be about or set in ${location}. Click on each link below to look for LinkedIn profiles of ${minorityGender.toLowerCase()} sources that might have background and experience in ${location} and ` : `Click on each link below to look for LinkedIn profiles of ${minorityGender.toLowerCase()} sources that might have `; // only mention location if it is found
+
             source_suggestions.innerHTML = `If it makes sense in the context of the story, you might want to consider looking for more ${minorityGender.toLowerCase()} sources. ${locationStatement}professional roles similar to the ${majorityGender.toLowerCase()} sources quoted:`;
             jobLinksDiv.appendChild(source_suggestions);
         } else {
@@ -450,10 +436,9 @@ function displayResults(response) {
 
     let minorityGender, majorityGender;
 
-    // Generating the summary of results
-
+    // Generate the table of sources
     if (totalSources === 0) {
-        resultsStatementDiv.innerHTML = "There were no sources detected in the text, or the only sources quoted are the main newsmaker(s) or subject(s) of the story. If you think this is wrong, please click on the 'Reset' button and try again.";
+        resultsStatementDiv.innerHTML = "There were no additional sources detected in the text provided. If you think this is wrong, please click on the 'Reset' button and try again.";
         resultsStatementDiv.style.display = 'block';
         resultsStatementDiv.style.backgroundColor = "#F4D4D5";
         // Hide the loading spinner 
@@ -463,14 +448,14 @@ function displayResults(response) {
         if (unknownCount > 0 && maleCount === 0 && femaleCount === 0)  {
             resultsStatementDiv.innerHTML = "We were not able to confidently determine the gender of any of the additional sources quoted.";
             resultsStatementDiv.style.backgroundColor = '#FFCD91';
-            jobLinksDiv.innerHTML = `<p>Gender is complex and not limited to "male" or "female". Furthermore, naming conventions vary by culture and individual preference, so it is not always possible to accurately determine the gender of a person by their name alone.</p><p>Nonetheless, it is always good to try to get a good balance of voices in your story.</p>`;
+            jobLinksDiv.innerHTML = `<p>Gender is complex and not limited to "male" or "female". Furthermore, naming conventions vary by culture and individual preference, so it is not always possible to accurately determine the gender of a person by their name alone.</p><p>Nonetheless, it is always good to try to get diverse perspectives in your story.</p>`;
         } else {
             if (malePercentage > femalePercentage) {
                 minorityGender = 'Female';
                 majorityGender = 'Male';
                 resultsStatementDiv.textContent = `There are more men than women quoted in your story.`;
                 resultsStatementDiv.style.backgroundColor = '#FFCD91'; 
-                jobLinksDiv.innerHTML = `<p>There ${maleCount === 1 ? 'was' : 'were'} <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> and <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> quoted as additional sources in your story.</p>`
+                jobLinksDiv.innerHTML = `<p>There ${maleCount === 1 ? 'was' : 'were'} <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> and <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> quoted as additional sources in your story.</p>Research has shown that news outlets around the world quote men <a href="https://whomakesthenews.org/wp-content/uploads/2021/07/GMMP2020.ENG_.FINAL20210713.pdf" target="_blank">many times more often</a> than they do women, dramatically underrepresenting the perspectives of about half the world's population.</p>`
             } else if (malePercentage === femalePercentage) {
                 resultsStatementDiv.textContent = "There is a perfect balance of men and women quoted in your story. Great job!";
                 resultsStatementDiv.style.backgroundColor = "#A4D1A2";
@@ -479,14 +464,12 @@ function displayResults(response) {
                 majorityGender = 'Female';
                 resultsStatementDiv.textContent = `There are more women than men quoted in your story.`;
                 resultsStatementDiv.style.backgroundColor = '#FFCD91';
-                jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story.</p><p>Women <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8242240/" target="_blank">tend to be</a> quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. Unless the story is specifically about women or men, it is often desirable to try to get a good balance of voices.</p>`
+                jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story.</p><p>Women <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8242240/" target="_blank">tend to be</a> quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. Unless the story is specifically about women or men, or a group of people who happen to be of one gender, it is often desirable to try to get a good balance of voices to avoid reinforcing stereotypes about gender roles.</p>`
             }
         }
 
         // Where there is an imbalance, extract the roles of anyone from the majority gender quoted in a professional role
-
         if (majorityGender != null) {
-                
             let majorityJobs = [];
 
             for (let person of data) {
@@ -536,7 +519,7 @@ function analyseArticle() {
         .then(displayResults)
         .catch(error => {
             console.error('Error analysing text:', error);
-            resultsStatementDiv.innerHTML = `<p>Oops, something went wrong! Please make sure you have entered text that includes some quotes from individuals and try again.</p>`;
+            resultsStatementDiv.innerHTML = `<p>Oops, something went wrong! Please make sure you have submitted an article that includes some quotes from individuals and try again.</p>`;
             resultsStatementDiv.style.display = 'block'; 
             resultsStatementDiv.style.backgroundColor = '#F4D4D5'; 
             // Hide the loading spinner and enable the analyse button in case of an error

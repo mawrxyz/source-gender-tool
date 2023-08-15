@@ -2,25 +2,29 @@
 <html>
     <head>
         <title>EquiQuote: The Source Gender Tool</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Styles/fonts -->
         <link rel="stylesheet" type="text/css" href="/css/style.css">
         <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;1,100;1,400;1,500&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+        <!-- Scripts for D3 and AJAX -->
         <script src="https://d3js.org/d3.v7.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
         <!-- Favicons -->
         <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
         <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
 <body>
     <h1>EquiQuote: The Source Gender Tool</h1>
+
+    <!-- About panel -->
 
     <div id="sidePanel" class="sidepanel">
         <a href="javascript:void(0)" class="closebtn" onclick="toggleNav(event)">×</a>
         <h2>About This App</h2>
         <p>I'm Melissa Zhu, a journalist from Singapore who has worked at news outlets including Channel NewsAsia and the South China Morning Post.</p>
-        <p>EquiQuote is my 2023 dissertation project for my Master's degree in Computational and Data Journalism at Cardiff University. Its goal is to automatically detect a story’s secondary sources, from articles entered into the text field, and suggest alternative sources if there is a gender imbalance.
+        <p>EquiQuote is my 2023 dissertation project for my Master of Science degree in Computational and Data Journalism at Cardiff University. Its goal is to automatically detect a story’s secondary sources, from articles entered into the text field, and suggest alternative sources if there is a gender imbalance.
         <p><a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845988/" target="_blank" rel="noopener noreferrer">Research shows</a> that men are quoted about three times as frequently as women in the news, reflecting a persistent underrepresentation of women's voices in the media.</p>
         <p>My proposed solution uses <a href="https://openai.com/research/gpt-4" target="_blank" rel="noopener noreferrer">OpenAI's GPT-4 model</a> to detect where the story takes place, as well as the name and gender of each source, the quotes attributed to them and the role they play in the story (which could be either professional or personal).</p>
         <p>It focuses on <em>additional</em> sources: people quoted who are not the main subject or newsmaker. Journalists often have to include the main newsmaker, but they have a choice as to who they interview to provide expert opinion or additional perspectives.</p>
@@ -32,6 +36,8 @@
       </div>
       
     <button id="aboutButton" onclick="toggleNav(event)">About</button>
+
+    <!-- Text input section -->
 
     <div id="main_container">
         <div id="content">
@@ -50,8 +56,10 @@
                         <button id="reset-button" type="button">RESET</button>
                     </div>
                 </div>
-            
             </form>
+
+            <!-- Results section -->
+            
             <div id="results">
                 <h2>Results</h2>
                 <div id="results_container">

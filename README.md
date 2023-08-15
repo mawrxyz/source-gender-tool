@@ -14,7 +14,7 @@ I'm [Melissa Zhu](https://www.linkedin.com/in/melissa-zhu/), a journalist from S
 
 ## How to Use This Code
 
-This repository is licensed under the [GNU General Public License v3.0](https://choosealicense.com/licenses/gpl-3.0/). A copy of the licence is available in `LICENSE.md`.
+This repository is licensed under the [GNU General Public License v3.0](https://choosealicense.com/licenses/gpl-3.0/). A copy of the licence is available at `LICENSE.md`.
 
 This tool uses [Node.js](https://nodejs.org/en/), so you will need to have it installed to run the code.
 

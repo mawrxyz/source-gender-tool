@@ -5,6 +5,8 @@
     </head>
 <body>
     <% 
+
+    <!-- Clean output to remove any HTML tags -->
     function cleanHTML(input) {
         var output = input.replace(/&#(\d+);/g, function(match, dec) { return String.fromCharCode(dec); })
                           .replace(/&#x([a-fA-F0-9]+);/g, function(match, hex) { return String.fromCharCode(parseInt(hex, 16)); });
@@ -27,6 +29,8 @@
         <% } %> 
         who might fit the role of '<%= cleanHTML(job_title.toLowerCase()) %>'
     </h2>
+
+    <!-- Link to main Google search for more results -->
     <div id="flex-container">
         <p id = "redirect_google">
             Not what you're looking for? 
@@ -48,8 +52,6 @@
             var title = cleanHTML(employees_data[i].title);
             var company = cleanHTML(employees_data[i].company);
             var gender = cleanHTML(employees_data[i].gender);
-            var probability = employees_data[i].probability;
-            console.log(`Probability of ${name} being ${gender} = ${probability}`);
             var about = cleanHTML(employees_data[i].about);
         %>
                 <p style="font-size: 1em"><a href="<%= employees_data[i].link %>" class="profile_link" target="blank"><%= name %></a></p>

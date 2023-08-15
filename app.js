@@ -13,8 +13,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with EquiQuote.  If not, see <https://www.gnu.org/licenses/>.
-*/
+along with EquiQuote.  If not, see <https://www.gnu.org/licenses/>. */
 
 require("dotenv").config()
 
@@ -42,7 +41,6 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 // Configure app
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
@@ -140,7 +138,6 @@ app.post('/detect', async (req, res) => {
         console.log('Message content:', response.data.choices[0].message);
 
         // Parse the response from GPT-4 into location and quoted individuals data
-
         try {
             let assistantOutput = response.data.choices[0].message.content;
             assistantOutput = assistantOutput.replace(/\\'/g, "'");
@@ -177,7 +174,6 @@ app.post('/detect', async (req, res) => {
         let quotedIndividuals = data.slice(1);
 
         for (let individual of quotedIndividuals) {
-            // Process each individual's name, gender, and role separately
             let name = individual.name;
             let gender = individual.gender;
             let reasons = individual.reasons;
@@ -203,7 +199,7 @@ app.post('/detect', async (req, res) => {
 });
 
 function buildSearchURL(job_title, location, minority_gender, restricted = true) {
-    let base = `https://www.googleapis.com/customsearch/v1${restricted ? '/siterestrict' : ''}`;
+    let base = `https://www.googleapis.com/customsearch/v1${restricted ? '/siterestrict' : ''}`; // preferentially use Custon Search Site Restricted JSON API which has no daily query limit
     let pronouns = "";
     if (minority_gender === 'female') {
         pronouns = `%20(she%20OR%20her)`;
@@ -221,7 +217,7 @@ async function processSearchResponse(response, job_title, minority_gender) {
             for (let item of items) {
                 let heading = (item.pagemap.metatags[0]["twitter:title"]).replace('| LinkedIn', '');
                     heading = heading.replace('| Professional Profile', '');
-                    heading = heading.replace(/Dr\.?\s+/i, ''); // Removing 'Dr' or 'Dr.' honorific which the Genderize API classifies as male
+                    heading = heading.replace(/Dr\.?\s+/i, ''); // remove 'Dr' or 'Dr.' honorific which the Genderize API classifies as male
                 let name = heading;
                 let title = "";
                 let company = "";
@@ -244,8 +240,7 @@ async function processSearchResponse(response, job_title, minority_gender) {
 
                 let firstName = name.split(" ")[0];
 
-                // INFERRING GENDER
-
+                // Infer gender using genderize.io and pronouns
                 let gender = await getGender(firstName);
                 let probability = await genderProb(firstName);
 
@@ -272,11 +267,11 @@ async function processSearchResponse(response, job_title, minority_gender) {
                 }
 
                 if (identifyNeutral) {
-                    gender = 'non-binary';
+                    gender = 'unknown';
                 }
 
                 console.log('Gender: ', gender);
-                console.log('Genderize probability: ', probability);
+                console.log('Genderize.io probability: ', probability);
 
                 if (gender !== minority_gender) {
                     continue; // Skip those that are not in the minority gender
@@ -296,7 +291,6 @@ async function processSearchResponse(response, job_title, minority_gender) {
                     title: title,
                     company: company,
                     gender: gender[0].toUpperCase() + gender.substring(1),
-                    probability: probability,
                     about: about.substring(0, about.lastIndexOf(".") + 1), // Removing any trailing sentences in description
                     link: item.link
                 });
