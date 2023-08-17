@@ -455,7 +455,7 @@ function displayResults(response) {
                 majorityGender = 'Male';
                 resultsStatementDiv.textContent = `There are more men than women quoted in your story.`;
                 resultsStatementDiv.style.backgroundColor = '#FFCD91'; 
-                jobLinksDiv.innerHTML = `<p>There ${maleCount === 1 ? 'was' : 'were'} <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> and <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> quoted as additional sources in your story.</p>Men are quoted <a href="https://whomakesthenews.org/wp-content/uploads/2021/07/GMMP2020.ENG_.FINAL20210713.pdf" target="_blank">many times more often</a> than they do women in news outlets around the world, dramatically underrepresenting the perspectives of about half the world's population.</p>`
+                jobLinksDiv.innerHTML = `<p>There ${maleCount === 1 ? 'was' : 'were'} <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> and <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> quoted as additional sources in your story.</p>Men are quoted <a href="https://whomakesthenews.org/wp-content/uploads/2021/07/GMMP2020.ENG_.FINAL20210713.pdf" target="_blank">many times more often</a> than women in news outlets around the world, especially as authoritative voices such as spokespersons and experts.</p>`
             } else if (malePercentage === femalePercentage) {
                 resultsStatementDiv.textContent = "There is a perfect balance of men and women quoted in your story. Great job!";
                 resultsStatementDiv.style.backgroundColor = "#A4D1A2";
