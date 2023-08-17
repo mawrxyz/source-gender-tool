@@ -295,7 +295,7 @@ input[type="text"], textarea {
   padding: 10px;
 }
 
-.jobLinks {
+#job_links a, .jobLinks {
   text-Decoration: none;
   color: #CD0010;
   cursor: pointer;
