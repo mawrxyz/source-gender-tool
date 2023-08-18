@@ -46,7 +46,7 @@ function toggleNav(event) {
 
 document.addEventListener('click', function(event) {
 
-    if (isPanelOpen && event.target !== aboutButton) { // if the panel is open and the click target is not the button
+    if (isPanelOpen && event.target !== aboutButton) { 
         panel.style.transform = "translateX(-100%)";
         aboutButton.style.left = "0";
         isPanelOpen = false;
@@ -174,7 +174,6 @@ function analyseText(article_text) {
     .catch(error => {
 
         console.log('Error while analysing text: ', error);
-        // Display the error message in resultsStatementDiv
         resultsStatementDiv.innerHTML = `<p>Oops, something went wrong! Please make sure you have entered text that includes some quotes from individuals and try again.</p>`;
         resultsStatementDiv.style.display = 'block'; 
         resultsStatementDiv.style.backgroundColor = '#F4D4D5'; 
