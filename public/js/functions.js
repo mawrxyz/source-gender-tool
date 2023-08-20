@@ -76,7 +76,6 @@ articleText.addEventListener('input', function() {
 
 function resetApp() {
 
-    console.log("Resetting app.");
     // Clear the text area
     articleText.value = '';
 
@@ -124,8 +123,6 @@ function formatPercentage(num) {
 
 function loadingAnalysis() {
 
-    console.log("Preparing to analyse text...");
-
     const elementsToClear = ['source_table', 'chart', 'results_statement', 'job_links'];
     for (const elementId of elementsToClear) {
         document.getElementById(elementId).innerHTML = '';
@@ -146,8 +143,6 @@ function loadingAnalysis() {
 
 function getArticleText() {
 
-    console.log("Retrieving text from user input...");
-
     const article_text = articleText.value;
     if (!article_text.trim()) {
         alert('Please enter some article text to analyse.');
@@ -157,8 +152,6 @@ function getArticleText() {
 }
 
 function analyseText(article_text) {
-
-    console.log("Analysing text...");
 
     return fetch('/detect', {
         method: 'POST',
@@ -173,7 +166,6 @@ function analyseText(article_text) {
     })
     .catch(error => {
 
-        console.log('Error while analysing text: ', error);
         resultsStatementDiv.innerHTML = `<p>Oops, something went wrong! Please make sure you have entered text that includes some quotes from individuals and try again.</p>`;
         resultsStatementDiv.style.display = 'block'; 
         resultsStatementDiv.style.backgroundColor = '#F4D4D5'; 
@@ -181,8 +173,6 @@ function analyseText(article_text) {
 }
 
 function drawChart(genderData) {
-
-    console.log("Drawing chart....");
 
     // Define the chart dimensions
     let margin = {top: 20, right: 20, bottom: 30, left: 50};
@@ -280,7 +270,6 @@ async function sourceSuggestions(location, majorityJobs, majorityGender, minorit
     if (isRunning) return;
 
     isRunning = true;
-    console.log("Source suggestions being generated...")
 
     const modal = document.getElementById('myModal');
     const modalBody = document.getElementById('modal_body');
@@ -338,7 +327,6 @@ async function sourceSuggestions(location, majorityJobs, majorityGender, minorit
             });
             li.appendChild(jobLink);
             if (!Array.from(ul.children).some(li => li.textContent.trim() === job)) { // check again for duplicates in the list
-                console.log("Adding source suggestions for ", job, "...");
                 ul.appendChild(li);
             }
         }
@@ -386,8 +374,6 @@ async function sourceSuggestions(location, majorityJobs, majorityGender, minorit
 
 function generateResultsTable(data) {
 
-    console.log("Generating table of sources...");
-
     tableHTML = '';
         tableHTML += '<table class = "source-table"><tr><th>Source</th><th>Gender</th><th>Role</th><th>Quotes</th></tr>';
 
@@ -414,14 +400,9 @@ function generateResultsTable(data) {
 
 function displayResults(response) {
 
-    console.log("Displaying results...");
-
     let location = response.location.location || 'unknown';
 
-    console.log('The location is: ', location);
-
     let data = response.perspectives_data;
-    console.log('Source data found: ', data);
 
     let totalSources = data.length;
 
@@ -496,8 +477,6 @@ function displayResults(response) {
         drawChart(genderData);
     
         generateResultsTable(data);
-
-        console.log("Done analysing text!");
 
         // Show elements after everything is done loading
         resultsStatementDiv.style.display = 'block';

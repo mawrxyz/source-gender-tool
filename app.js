@@ -31,7 +31,6 @@ let users = {
     [process.env.TEST_USERNAME]: process.env.TEST_PASSWORD,
 }
 
-console.log(`Current node environment: ${process.env.NODE_ENV}`)
 if (process.env.NODE_ENV !== 'development') {
     app.use(basicAuth({
         users: users,
@@ -136,9 +135,6 @@ app.post('/detect', async (req, res) => {
             max_tokens: 2500
         });
 
-        console.log('Response data: ', response.data);
-        console.log('Message content:', response.data.choices[0].message);
-
         // Parse the response from GPT-4 into location and quoted individuals data
         try {
             let assistantOutput = response.data.choices[0].message.content;
@@ -146,8 +142,6 @@ app.post('/detect', async (req, res) => {
             assistantOutput = assistantOutput.trim();
 
             try {
-                console.log('assistantOutput: ', assistantOutput)
-                console.log('type: ', typeof assistantOutput);
 
                 if (assistantOutput.charCodeAt(0) === 0xFEFF) {
                     assistantOutput = assistantOutput.slice(1);
@@ -196,7 +190,6 @@ app.post('/detect', async (req, res) => {
         console.log(e);
     }
 
-    console.log('Location: ', location, '/nPerspectives data: ', perspectives_data);
     res.json({perspectives_data, location, error});
 });
 
@@ -214,7 +207,6 @@ function buildSearchURL(job_title, location, minority_gender, restricted = true)
 async function processSearchResponse(response, job_title, minority_gender) {
     let employees_data = [];
     const items = response.body.items;
-    console.log("Profiles found: ", items);
     let count = 0;
             for (let item of items) {
                 let heading = (item.pagemap.metatags[0]["twitter:title"]).replace('| LinkedIn', '');
@@ -226,7 +218,6 @@ async function processSearchResponse(response, job_title, minority_gender) {
 
                 if (heading.includes(" - ")) {
                     [name, ...titleParts] = heading.split(" - ");
-                    console.log("Title Parts: ", titleParts);
                     title = titleParts[0];
                     if (titleParts.length > 1) {
                         company = titleParts[1];
@@ -234,11 +225,6 @@ async function processSearchResponse(response, job_title, minority_gender) {
                 }
 
                 let about = item.pagemap.metatags[0]["og:description"];
-
-                console.log('Name: ', name);
-                console.log("Title: ", title)
-                console.log("Company: ", company)
-                console.log("About: ", about)
 
                 let firstName = name.split(" ")[0];
 
@@ -271,9 +257,6 @@ async function processSearchResponse(response, job_title, minority_gender) {
                 if (identifyNeutral) {
                     gender = 'unknown';
                 }
-
-                console.log('Gender: ', gender);
-                console.log('Genderize.io probability: ', probability);
 
                 if (gender !== minority_gender) {
                     continue; // Skip those that are not in the minority gender
@@ -317,16 +300,13 @@ app.post('/search', async (req, res) => {
             let response = await unirest.get(url);
 
             if (response.status === 429) {
-                console.log("Switching to regular Google Custom Search API...");
                 url = buildSearchURL(job_title, location, minority_gender, false);
                 response = await unirest.get(url);
             }
             employees_data = await processSearchResponse(response, job_title, minority_gender);
         } catch (e) {
-            console.log(e)
             return res.status(500).render('results', { error: e.message });
         }
-        console.log('Employees data: ', employees_data);
         return employees_data;
     };
 
