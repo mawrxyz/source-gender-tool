@@ -107,13 +107,14 @@ app.post('/detect', async (req, res) => {
                     "quotes": "<ul><li>Jane Doe, a senior political analyst at US think tank Think Politics, said this was a 'highly concerning' situation.</li><li>'It is hard to say which way this will go,' she added.</li></ul>"
                 },
                 {
-                    "name": "Robin Doe",
+                    "name": "Robin Smith",
                     "gender": "Male",
                     "reasons": "The use of the pronoun "he" indicates this source is likely to be male.",
                     "role": "Resident of Cardiff city",
                     "linkedin": "no",
-                    "quotes": "<ul><li>Cardiff resident Robin Doe said he largely supported the city's policies regarding sustainable energy.</li></ul>"
+                    "quotes": "<ul><li>Cardiff resident Robin Smith said he largely supported the city's policies regarding sustainable energy.</li></ul>"
                 },
+                {
                     "name": "Unnamed spokesman",
                     "gender": "Male",
                     "reasons": "The term "spokesman" tends to indicate a spokesperson of male gender.",
@@ -121,12 +122,13 @@ app.post('/detect', async (req, res) => {
                     "linkedin": "yes",
                     "quotes": "<ul><li>'We are looking into the matter,' a spokesman for the Welsh government said.</li></ul>"
                 },
-                    "name": "Alex Tan",
+                {
+                    "name": "Liu Chen",
                     "gender": "Unknown",
                     "reasons": ""They" as a singular pronoun is often used by nonbinary people.",
                     "role": "Defence lawyer",
                     "linkedin": "no",
-                    "quotes": "<ul><li>'My client is innocent, and we will shortly provide new evidence that will prove it,' her lawyer Alex Tan said. They added that the accused looked forward to seeing her family again.</li></ul>"
+                    "quotes": "<ul><li>'My client is innocent, and we will shortly provide new evidence that will prove it,' her lawyer Liu Chen said. They added that the accused looked forward to seeing her family again.</li></ul>"
                 }]`},
                 {role: "user", content: article_text}
             ],
