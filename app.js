@@ -194,7 +194,7 @@ app.post('/detect', async (req, res) => {
 });
 
 function buildSearchURL(job_title, location, minority_gender, restricted = true) {
-    let base = `https://www.googleapis.com/customsearch/v1${restricted ? '/siterestrict' : ''}`; // preferentially use Custon Search Site Restricted JSON API which has no daily query limit
+    let base = `https://www.googleapis.com/customsearch/v1${restricted ? '/siterestrict' : ''}`; // preferentially use Custom Search Site Restricted JSON API which has no daily query limit
     let pronouns = "";
     if (minority_gender === 'female') {
         pronouns = `%20(she%20OR%20her)`;
@@ -234,11 +234,6 @@ async function processSearchResponse(response, job_title, minority_gender) {
 
                 if (gender === null) {
                     gender = 'Unclear (not defined)';
-                }
-
-                // Look for references to female pronouns in snippet for 'male' names in case name is gender neutral
-                if (gender !== 'female' && probability < 1 && (((item.snippet).toLowerCase()).includes(' she ') | ((item.snippet).toLowerCase()).includes(' her '))) {
-                    gender = 'Probably female (potentially gender neutral name)'; 
                 }
 
                 // Self-identified gender by pronouns takes precedence all of the above
