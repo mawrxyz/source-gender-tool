@@ -232,14 +232,9 @@ async function processSearchResponse(response, job_title, minority_gender) {
                 let gender = await getGender(firstName);
                 let probability = await genderProb(firstName);
 
-                if (gender === null) {
-                    gender = 'Unclear (not defined)';
-                }
-
-                // Self-identified gender by pronouns takes precedence all of the above
+                // Self-identified gender by pronouns overrides genderize.io judgment
                 let identifyMale = (name.toLowerCase()).includes('(he/him)') | (name.toLowerCase()).includes('(he / him)');
                 let identifyFemale = (name.toLowerCase()).includes('(she/her)') | (name.toLowerCase()).includes('(she / her)');
-                let identifyNeutral = (name.toLowerCase()).includes('(they/them)') | (name.toLowerCase()).includes('(they / them)') | (name.toLowerCase()).includes('(ze/hir/hirs)') | (name.toLowerCase()).includes('(ey/em/eir)');
 
                 if (identifyMale) {
                     gender = 'male';
@@ -247,10 +242,6 @@ async function processSearchResponse(response, job_title, minority_gender) {
 
                 if (identifyFemale) {
                     gender = 'female';
-                }
-
-                if (identifyNeutral) {
-                    gender = 'unknown';
                 }
 
                 if (gender !== minority_gender) {
