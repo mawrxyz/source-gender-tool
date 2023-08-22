@@ -61,12 +61,6 @@ const getGender = async (name) => {
     return response.data.gender;
 }
 
-// Probability of name being that gender 
-const genderProb = async (name) => {
-    const response = await axios.get(`https://api.genderize.io?name=${name}`);
-    return response.data.probability;
-}
-
 app.get("/", (req, res) => {
     res.render("index");
 });
@@ -230,7 +224,6 @@ async function processSearchResponse(response, job_title, minority_gender) {
 
                 // Infer gender using genderize.io and pronouns
                 let gender = await getGender(firstName);
-                let probability = await genderProb(firstName);
 
                 // Self-identified gender by pronouns overrides genderize.io judgment
                 let identifyMale = (name.toLowerCase()).includes('(he/him)') | (name.toLowerCase()).includes('(he / him)');
