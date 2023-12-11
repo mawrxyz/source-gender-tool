@@ -398,11 +398,25 @@ function generateResultsTable(data) {
         });
 }
 
+function formatNewsmakers(newsmakerArray) {
+    if (!newsmakerArray || newsmakerArray.length === 0) {
+        return null;
+    } else if (newsmakerArray.length === 1) {
+        return newsmakerArray[0];
+    } else {
+        return `${newsmakerArray.slice(0, -1).join(', ')} and ${newsmakerArray[newsmakerArray.length - 1]}`;
+    }
+}
+
 function displayResults(response) {
 
     let location = response.location.location || 'unknown';
 
     let data = response.perspectives_data;
+
+    let newsmaker = response.newsmaker.main;
+
+    let newsmakerText = formatNewsmakers(response.newsmaker.main);
 
     let totalSources = data.length;
 
@@ -418,9 +432,13 @@ function displayResults(response) {
 
     // Generate the table of sources
     if (totalSources === 0) {
-        resultsStatementDiv.innerHTML = "There were no additional sources detected in the text provided. If you think this is wrong, please click on the 'Reset' button and try again.";
+        resultsStatementDiv.innerHTML = `There were no additional sources detected in the text provided. If you think this is wrong, please click on the 'Reset' button and try again.`;
         resultsStatementDiv.style.display = 'block';
         resultsStatementDiv.style.backgroundColor = "#F4D4D5";
+        jobLinksDiv.style.display = 'block';
+        if (newsmakerText) {
+            jobLinksDiv.innerHTML = `<p>The main subject${response.newsmaker.main.length === 1 ? '' : 's'} of the story ${response.newsmaker.main.length === 1 ? 'was' : 'were'} identified as ${newsmakerText}.</p>`;
+        }
         // Hide the loading spinner 
         loadingSpinner.style.display = 'none';
     } else {
@@ -428,23 +446,40 @@ function displayResults(response) {
         if (unknownCount > 0 && maleCount === 0 && femaleCount === 0)  {
             resultsStatementDiv.innerHTML = "We were not able to confidently determine the gender of any of the additional sources quoted.";
             resultsStatementDiv.style.backgroundColor = '#FFCD91';
-            jobLinksDiv.innerHTML = `<p>Gender is complex and not limited to "male" or "female". Furthermore, naming conventions vary by culture and individual preference, so it is not always possible to accurately determine the gender of a person by their name alone.</p><p>Nonetheless, it is always good to try to get diverse perspectives in your story.</p>`;
+            if (newsmakerText) {
+                jobLinksDiv.innerHTML = `<p>The main subject${response.newsmaker.main.length === 1 ? '' : 's'} of the story ${response.newsmaker.main.length === 1 ? 'was' : 'were'} identified as ${newsmakerText}.</p><p>Gender is complex and not limited to "male" or "female". Furthermore, naming conventions vary by culture and individual preference, so it is not always possible to accurately determine the gender of a person by their name alone.</p><p>Nonetheless, it is always good to try to get diverse perspectives in your story.</p>`;
+            }
+            else {
+                jobLinksDiv.innerHTML = `<p>Gender is complex and not limited to "male" or "female". Furthermore, naming conventions vary by culture and individual preference, so it is not always possible to accurately determine the gender of a person by their name alone.</p><p>Nonetheless, it is always good to try to get diverse perspectives in your story.</p>`;
+            }
         } else {
             if (malePercentage > femalePercentage) {
                 minorityGender = 'Female';
                 majorityGender = 'Male';
                 resultsStatementDiv.textContent = `There are more men than women quoted in your story.`;
                 resultsStatementDiv.style.backgroundColor = '#FFCD91'; 
-                jobLinksDiv.innerHTML = `<p>There ${maleCount === 1 ? 'was' : 'were'} <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> and <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> quoted as additional sources in your story.</p>Men are quoted <a href="https://whomakesthenews.org/wp-content/uploads/2021/07/GMMP2020.ENG_.FINAL20210713.pdf" target="_blank">many times more often</a> than women in news outlets around the world, especially as authoritative voices such as spokespersons and experts.</p>`
+                if (newsmakerText) {
+                    jobLinksDiv.innerHTML = `<p>The main subject${response.newsmaker.main.length === 1 ? '' : 's'} of the story ${response.newsmaker.main.length === 1 ? 'was' : 'were'} identified as ${newsmakerText}.</p><p>There ${maleCount === 1 ? 'was' : 'were'} <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> and <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> quoted as additional sources in your story.</p>Men are quoted <a href="https://whomakesthenews.org/wp-content/uploads/2021/07/GMMP2020.ENG_.FINAL20210713.pdf" target="_blank">many times more often</a> than women in news outlets around the world, especially as authoritative voices such as spokespersons and experts.</p>`;
+                } else {
+                    jobLinksDiv.innerHTML = `<p>There ${maleCount === 1 ? 'was' : 'were'} <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> and <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> quoted as additional sources in your story.</p>Men are quoted <a href="https://whomakesthenews.org/wp-content/uploads/2021/07/GMMP2020.ENG_.FINAL20210713.pdf" target="_blank">many times more often</a> than women in news outlets around the world, especially as authoritative voices such as spokespersons and experts.</p>`;
+                }
             } else if (malePercentage === femalePercentage) {
                 resultsStatementDiv.textContent = "There is a perfect balance of men and women quoted in your story. Great job!";
                 resultsStatementDiv.style.backgroundColor = "#A4D1A2";
+                if (newsmakerText) {
+                    jobLinksDiv.innerHTML = `<p>The main subject${response.newsmaker.main.length === 1 ? '' : 's'} of the story ${response.newsmaker.main.length === 1 ? 'was' : 'were'} identified as ${newsmakerText}.</p>`;
+                }
             } else {
                 minorityGender = 'Male';
                 majorityGender = 'Female';
                 resultsStatementDiv.textContent = `There are more women than men quoted in your story.`;
                 resultsStatementDiv.style.backgroundColor = '#FFCD91';
-                jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story.</p><p>Women <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8242240/" target="_blank">tend to be</a> quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. Unless the story is specifically about women or men, or a group of people who happen to be of one gender, it is often desirable to try to get a good balance of voices to avoid reinforcing stereotypes about gender roles.</p>`
+                if (newsmakerText) {
+                    jobLinksDiv.innerHTML = `<p>The main subject${response.newsmaker.main.length === 1 ? '' : 's'} of the story ${response.newsmaker.main.length === 1 ? 'was' : 'were'} identified as ${newsmakerText}.</p><p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story.</p><p>Women <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8242240/" target="_blank">tend to be</a> quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. Unless the story is specifically about women or men, or a group of people who happen to be of one gender, it is often desirable to try to get a good balance of voices to avoid reinforcing stereotypes about gender roles.</p>`;
+                } else {
+                    jobLinksDiv.innerHTML = `<p>There ${femaleCount === 1 ? 'was' : 'were'} <b>${femaleCount} ${femaleCount === 1 ? 'woman' : 'women'}</b> and <b>${maleCount} ${maleCount === 1 ? 'man' : 'men'}</b> quoted as additional sources in your story.</p><p>Women <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8242240/" target="_blank">tend to be</a> quoted more on topics such as lifestyle, entertainment, and healthcare, while men tend to feature more in articles about sports, politics, and business. Unless the story is specifically about women or men, or a group of people who happen to be of one gender, it is often desirable to try to get a good balance of voices to avoid reinforcing stereotypes about gender roles.</p>`;
+                }
+                
             }
         }
 

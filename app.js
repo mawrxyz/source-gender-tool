@@ -70,6 +70,8 @@ app.post('/detect', async (req, res) => {
     let article_text = req.body.article_text;
     
     let location = null;
+    let quotedIndividuals = null;
+    let newsmaker = null;
     let perspectives_data = [];
     let error = null; 
     let data; 
@@ -79,17 +81,18 @@ app.post('/detect', async (req, res) => {
             messages: [
                 {role: "system", content: `You will be provided with a block of text. Your first task is to identify where the story takes place (or "location"), if this information is available (if not, return {location: null} as the first item in the response array). The location could be a city, town, region or country but not a specific landmark. Your second task will be to identify individuals who are quoted as saying something in the text, including their name if available, their gender, and their connection to the subject of the story or the reason for their inclusion in the story. If the individual is unnamed, provide whatever identifying description is given e.g. "A government source" or "An unnamed resident".
                 
-                **IMPORTANT: Only include individuals who are providing supplementary comments or perspectives who could be replaced by others of similar background, experiences or expertise. Exclude individuals who are the main subject(s) of the news article. Also, exclude individuals who are only mentioned but do not provide quotes.**
+                **IMPORTANT: Only include individuals who are providing supplementary comments or perspectives who could be replaced by others of similar background, experiences or expertise. Exclude individuals who are the main subject(s) or newsmaker(s) of the news article – meaning the article could not have been written without this specific person. Also, exclude individuals who are only mentioned but do not provide quotes, or if their quotes are only reported through another speaker.**
 
                 Describe each individual's connection (or "role") in broad terms that explain why their perspectives are valuable to the story. This could be, for example, due to professional expertise, personal experiences or a shared background with other people mentioned in the story. Do not mention specific company names or overly detailed job titles, unless these details are key to the person's role in the story. 
                 
                 If the role is a professional one, phrase the result such that someone with similar background or expertise could be found by searching for the role on a job site like LinkedIn, and put "yes" as the value for the key "linkedin". Otherwise put "no" for the key "linkedin" if the role is highly personal such as the relative of the main subject or a resident of a city, or the person's title is highly specific such as the Minister in charge of the area the story is about, whose perspective would be hard to replace. 
                 
-                State the individual's "gender" based on names, pronouns, gendered honorifics used in reference to that individual (NOT anyone else they mention in their quote) or other contextual clues. However, do not make any assumptions based on job titles or honorifics that could apply to both genders. If it is ambiguous, such as if the name is gender neutral, the pronoun "they" is used to reference an individual, or there are no pronouns or honorifics used, state the gender as "unknown". Under "reasons", briefly summarise the relevant factors for your determination of the person's gender.
+                State the individual's "gender" based on names, pronouns, gendered honorifics used in reference to that individual (NOT anyone else they mention in their quote) or other contextual clues, such as references to them as being a mother, father or other gendered terms. However, do not make any assumptions based on job titles or honorifics that could apply to both genders. If it is ambiguous, such as if the name is gender neutral, the pronoun "they" is used to reference an individual, or there are no pronouns or honorifics used, state the gender as "unknown". Under "reasons", briefly summarise the relevant factors for your determination of the person's gender.
 
-                Extract the quotes that are used, with each line containing a direct or indirect quote presented as a list item with the exact wording used in the text. There must be at least one quote for each individual included. Otherwise, omit that individual. 
+                Extract the quotes that are attributed to this individual, with each line containing a direct or indirect quote presented as a list item with the exact wording used in the text. There must be at least one quote attributed to each individual included. Otherwise, omit that individual. DO NOT include quotes that are about that individual but attributed to other people. 
                 
-                Please return your response as an array of JavaScript objects in British English, with the first object representing the location and each subsequent object representing an individual. For example:
+                Return your response as an array of JavaScript objects in British English, with the first object representing the location and each subsequent object representing an individual. In the last object, list the names of any individuals idenfied as the main subject(s) or newsmaker(s) of the article, in an array with the key "main". For example:
+                
                 [{"location": "Cardiff, Wales"},
                 {
                     "name": "Jane Doe",
@@ -122,7 +125,8 @@ app.post('/detect', async (req, res) => {
                     "role": "Defence lawyer",
                     "linkedin": "no",
                     "quotes": "<ul><li>'My client is innocent, and we will shortly provide new evidence that will prove it,' her lawyer Liu Chen said. They added that the accused looked forward to seeing her family again.</li></ul>"
-                }]`},
+                },
+                {"main": "[Fiona Lee, Jackson Wong"]}]`},
                 {role: "user", content: article_text}
             ],
             temperature: 0,
@@ -132,6 +136,7 @@ app.post('/detect', async (req, res) => {
         // Parse the response from GPT-4 into location and quoted individuals data
         try {
             let assistantOutput = response.data.choices[0].message.content;
+            console.log(assistantOutput)
             assistantOutput = assistantOutput.replace(/\\'/g, "'");
             assistantOutput = assistantOutput.trim();
 
@@ -161,7 +166,8 @@ app.post('/detect', async (req, res) => {
         }
 
         location = data[0];
-        let quotedIndividuals = data.slice(1);
+        quotedIndividuals = data.slice(1, -1);
+        newsmaker = data[data.length - 1]
 
         for (let individual of quotedIndividuals) {
             let name = individual.name;
@@ -184,7 +190,7 @@ app.post('/detect', async (req, res) => {
         console.log(e);
     }
 
-    res.json({perspectives_data, location, error});
+    res.json({perspectives_data, location, newsmaker, error});
 });
 
 function buildSearchURL(job_title, location, minority_gender, restricted = true) {
